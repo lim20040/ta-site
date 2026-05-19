@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>조교 지원 시스템</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; }
@@ -27,7 +26,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .screen { display: none; }
 .screen.active { display: block; }
 
-/* 홈 */
 .home-wrap { max-width: 480px; margin: 0 auto; padding: 3rem 1.5rem; text-align: center; }
 .home-wrap h1 { font-size: 24px; font-weight: 700; margin-bottom: 0.5rem; }
 .home-wrap p { font-size: 14px; color: #666; margin-bottom: 2.5rem; }
@@ -40,7 +38,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .type-card .icon { font-size: 36px; margin-bottom: 0.75rem; }
 .type-card h2 { font-size: 15px; font-weight: 600; line-height: 1.5; }
 
-/* 폼 */
 .form-wrap { max-width: 540px; margin: 0 auto; padding: 2rem 1.5rem; }
 .progress-bar { display: flex; gap: 6px; margin-bottom: 1.5rem; }
 .step { flex: 1; height: 4px; border-radius: 2px; background: #e5e5e5; }
@@ -91,7 +88,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .btn-prev:hover { background: #f5f5f5; }
 .btn-next:hover { background: #333; }
 
-/* 달력 */
 .cal-wrap { max-width: 480px; margin: 0 auto; padding: 2rem 1.5rem; }
 .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
 .cal-header h3 { font-size: 18px; font-weight: 700; }
@@ -113,7 +109,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .cal-day.past { color: #ccc; pointer-events: none; }
 .selected-date-label { text-align: center; margin: 1rem 0 0; font-size: 14px; color: #555; min-height: 20px; }
 
-/* 시간 */
 .time-wrap { max-width: 480px; margin: 0 auto; padding: 2rem 1.5rem; }
 .time-section { margin-bottom: 1.5rem; }
 .time-section h3 { font-size: 14px; color: #888; margin-bottom: 0.75rem; font-weight: 500; }
@@ -126,25 +121,21 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .time-btn:hover { border-color: #999; }
 .time-btn.selected { background: #111; color: #fff; border-color: #111; font-weight: 600; }
 
-/* 완료 */
 .done-wrap { max-width: 400px; margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
 .done-icon { font-size: 56px; margin-bottom: 1.5rem; }
 .done-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.75rem; }
 .done-wrap p { font-size: 13px; color: #aaa; }
 
-/* 관리자 로그인 */
 .admin-login-wrap { max-width: 340px; margin: 5rem auto; padding: 2rem; background: #fff; border-radius: 16px; border: 1px solid #e5e5e5; }
 .admin-login-wrap h2 { font-size: 20px; font-weight: 700; margin-bottom: 1.5rem; text-align: center; }
 .admin-login-wrap input {
   width: 100%; padding: 10px 12px; font-size: 14px;
   border: 1px solid #ddd; border-radius: 10px; margin-bottom: 0.75rem;
-  outline: none; font-family: inherit;
+  outline: none; font-family: inherit; display: block;
 }
 .admin-login-wrap input:focus { border-color: #111; }
-.admin-login-wrap .btn-next { width: 100%; }
 .error-msg { font-size: 13px; color: #e00; margin-top: 0.5rem; text-align: center; min-height: 18px; }
 
-/* 관리자 패널 */
 .admin-wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
 .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
 .admin-header h2 { font-size: 22px; font-weight: 700; }
@@ -162,11 +153,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 }
 .applicant-card-header:hover { background: #fafafa; }
 .a-left { display: flex; align-items: center; gap: 0.75rem; }
-.avatar {
-  width: 40px; height: 40px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600;
-}
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
 .avatar-qa { background: #e8f0fe; color: #1a56db; }
 .avatar-work { background: #dcfce7; color: #16a34a; }
 .a-name { font-size: 15px; font-weight: 600; }
@@ -174,14 +161,12 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .a-badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; }
 .badge-qa { background: #e8f0fe; color: #1a56db; }
 .badge-work { background: #dcfce7; color: #16a34a; }
-
 .applicant-detail { display: none; padding: 1rem 1.25rem; border-top: 1px solid #f0f0f0; background: #fafafa; }
 .applicant-detail.open { display: block; }
 .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; }
 .detail-item .dl { font-size: 12px; color: #999; margin-bottom: 2px; }
 .detail-item .dv { font-size: 14px; color: #111; }
 .detail-full { grid-column: 1 / -1; }
-
 .empty-state { text-align: center; padding: 4rem; color: #aaa; font-size: 14px; }
 .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
 </style>
@@ -193,7 +178,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   <button class="admin-btn" onclick="showScreen('admin-login')">🔒 관리자</button>
 </div>
 
-<!-- 홈 -->
 <div class="screen active" id="screen-home">
   <div class="home-wrap">
     <h1>조교 지원</h1>
@@ -211,7 +195,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
-<!-- 정보 입력 -->
 <div class="screen" id="screen-form">
   <div class="form-wrap">
     <div class="progress-bar">
@@ -221,18 +204,10 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
     </div>
     <div class="form-badge" id="form-type-badge"></div>
     <h2>기본 정보 입력</h2>
-
     <div class="form-row">
-      <div class="form-group">
-        <label>이름</label>
-        <input type="text" id="f-name" placeholder="홍길동">
-      </div>
-      <div class="form-group">
-        <label>나이</label>
-        <input type="number" id="f-age" placeholder="24">
-      </div>
+      <div class="form-group"><label>이름</label><input type="text" id="f-name" placeholder="홍길동"></div>
+      <div class="form-group"><label>나이</label><input type="number" id="f-age" placeholder="24"></div>
     </div>
-
     <div class="form-group">
       <label>성별</label>
       <div class="gender-row">
@@ -248,28 +223,12 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
         </select>
       </div>
     </div>
-
-    <div class="form-group">
-      <label>전화번호</label>
-      <input type="tel" id="f-phone" placeholder="010-0000-0000">
-    </div>
-
-    <div class="form-group">
-      <label>거주지</label>
-      <input type="text" id="f-address" placeholder="서울시 관악구">
-    </div>
-
+    <div class="form-group"><label>전화번호</label><input type="tel" id="f-phone" placeholder="010-0000-0000"></div>
+    <div class="form-group"><label>거주지</label><input type="text" id="f-address" placeholder="서울시 관악구"></div>
     <div class="form-row">
-      <div class="form-group">
-        <label>학교</label>
-        <input type="text" id="f-school" placeholder="서울대학교">
-      </div>
-      <div class="form-group">
-        <label>학과</label>
-        <input type="text" id="f-dept" placeholder="컴퓨터공학과">
-      </div>
+      <div class="form-group"><label>학교</label><input type="text" id="f-school" placeholder="서울대학교"></div>
+      <div class="form-group"><label>학과</label><input type="text" id="f-dept" placeholder="컴퓨터공학과"></div>
     </div>
-
     <div class="form-row">
       <div class="form-group">
         <label>학년</label>
@@ -279,12 +238,8 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
           <option>4학년</option><option>대학원생</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>근무가능기간</label>
-        <input type="text" id="f-period" placeholder="2025.03 ~ 2025.06">
-      </div>
+      <div class="form-group"><label>근무가능기간</label><input type="text" id="f-period" placeholder="2025.03 ~ 2025.06"></div>
     </div>
-
     <div class="form-group">
       <label>경력</label>
       <div id="career-list">
@@ -295,7 +250,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       </div>
       <button class="add-career-btn" onclick="addCareer()">+ 항목 추가</button>
     </div>
-
     <div class="nav-btns">
       <button class="btn-prev" onclick="showScreen('home')">이전</button>
       <button class="btn-next" onclick="goDate()">다음</button>
@@ -303,7 +257,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
-<!-- 날짜 선택 -->
 <div class="screen" id="screen-date">
   <div class="cal-wrap">
     <div class="progress-bar">
@@ -327,7 +280,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
-<!-- 시간 선택 -->
 <div class="screen" id="screen-time">
   <div class="time-wrap">
     <div class="progress-bar">
@@ -352,7 +304,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
-<!-- 완료 -->
 <div class="screen" id="screen-done">
   <div class="done-wrap">
     <div class="done-icon">✅</div>
@@ -364,12 +315,11 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
-<!-- 관리자 로그인 -->
 <div class="screen" id="screen-admin-login">
   <div class="admin-login-wrap">
     <h2>🔒 관리자 로그인</h2>
     <input type="password" id="admin-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkAdmin()">
-    <button class="btn-next" onclick="checkAdmin()">로그인</button>
+    <button class="btn-next" style="width:100%;flex:none" onclick="checkAdmin()">로그인</button>
     <div class="error-msg" id="admin-error"></div>
     <div style="margin-top:0.75rem">
       <button class="btn-prev" style="width:100%" onclick="showScreen('home')">돌아가기</button>
@@ -377,7 +327,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
-<!-- 관리자 패널 -->
 <div class="screen" id="screen-admin">
   <div class="admin-wrap">
     <div class="admin-header">
@@ -394,15 +343,11 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 </div>
 
 <script>
-// ===================== Supabase 설정 =====================
 const SUPABASE_URL = 'https://iawrbhjyzxacteurukfa.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_AiHTjZGSf6HF4BqjSB42bg_aEMeV6yH';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ===================== 관리자 비밀번호 (여기서 변경 가능) =====================
 const ADMIN_PASSWORD = 'admin1234';
 
-// ===================== 상태 변수 =====================
+let db = null;
 let currentType = '';
 let selectedDate = null;
 let selectedTime = null;
@@ -410,14 +355,18 @@ let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 let allApplications = [];
 
-// ===================== 화면 전환 =====================
+async function initDB() {
+  const mod = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  db = mod.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+initDB();
+
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   window.scrollTo(0, 0);
 }
 
-// ===================== 홈 =====================
 function selectType(type) {
   currentType = type;
   document.getElementById('form-type-badge').textContent = type;
@@ -426,7 +375,6 @@ function selectType(type) {
   showScreen('form');
 }
 
-// ===================== 폼 =====================
 function handleGender() {
   const g = document.getElementById('f-gender').value;
   document.getElementById('f-military').style.display = g === '남성' ? 'block' : 'none';
@@ -451,35 +399,28 @@ function goDate() {
   showScreen('date');
 }
 
-// ===================== 달력 =====================
 const DAYS = ['일','월','화','수','목','금','토'];
 
 function renderCalendar() {
-  const title = document.getElementById('cal-title');
+  document.getElementById('cal-title').textContent = calYear + '년 ' + (calMonth + 1) + '월';
   const grid = document.getElementById('cal-grid');
-  title.textContent = calYear + '년 ' + (calMonth + 1) + '월';
   grid.innerHTML = '';
-
   DAYS.forEach(d => {
     const el = document.createElement('div');
     el.className = 'cal-day-name';
     el.textContent = d;
     grid.appendChild(el);
   });
-
-  const today = new Date();
-  today.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
   const firstDay = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
   const prevDays = new Date(calYear, calMonth, 0).getDate();
-
   for (let i = firstDay - 1; i >= 0; i--) {
     const el = document.createElement('div');
     el.className = 'cal-day other-month';
     el.textContent = prevDays - i;
     grid.appendChild(el);
   }
-
   for (let d = 1; d <= daysInMonth; d++) {
     const el = document.createElement('div');
     el.className = 'cal-day';
@@ -497,8 +438,7 @@ function selectDay(d, el) {
   document.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   selectedDate = { y: calYear, m: calMonth, d };
-  document.getElementById('selected-date-label').textContent =
-    calYear + '년 ' + (calMonth + 1) + '월 ' + d + '일 선택됨';
+  document.getElementById('selected-date-label').textContent = calYear + '년 ' + (calMonth + 1) + '월 ' + d + '일 선택됨';
 }
 
 function changeMonth(dir) {
@@ -508,7 +448,6 @@ function changeMonth(dir) {
   renderCalendar();
 }
 
-// ===================== 시간 =====================
 function goTime() {
   if (!selectedDate) { alert('날짜를 선택해주세요.'); return; }
   renderTimeGrid();
@@ -516,12 +455,10 @@ function goTime() {
 }
 
 function renderTimeGrid() {
-  const amGrid = document.getElementById('am-grid');
-  const pmGrid = document.getElementById('pm-grid');
-  amGrid.innerHTML = '';
-  pmGrid.innerHTML = '';
-  ['09:00','09:30','10:00','10:30','11:00','11:30'].forEach(t => amGrid.appendChild(makeTimeBtn(t)));
-  ['12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'].forEach(t => pmGrid.appendChild(makeTimeBtn(t)));
+  document.getElementById('am-grid').innerHTML = '';
+  document.getElementById('pm-grid').innerHTML = '';
+  ['09:00','09:30','10:00','10:30','11:00','11:30'].forEach(t => document.getElementById('am-grid').appendChild(makeTimeBtn(t)));
+  ['12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'].forEach(t => document.getElementById('pm-grid').appendChild(makeTimeBtn(t)));
 }
 
 function makeTimeBtn(t) {
@@ -536,16 +473,14 @@ function makeTimeBtn(t) {
   return btn;
 }
 
-// ===================== 제출 =====================
 async function submitApp() {
   if (!selectedTime) { alert('시간을 선택해주세요.'); return; }
-
+  if (!db) { alert('잠시 후 다시 시도해주세요.'); return; }
   const careers = Array.from(document.querySelectorAll('#career-list .career-item input'))
     .map(i => i.value.trim()).filter(v => v).join(' / ');
   const gender = document.getElementById('f-gender').value;
   const military = gender === '남성' ? document.getElementById('f-military').value : '';
   const dateStr = selectedDate.y + '.' + String(selectedDate.m + 1).padStart(2,'0') + '.' + String(selectedDate.d).padStart(2,'0');
-
   const data = {
     type: currentType,
     name: document.getElementById('f-name').value || '',
@@ -561,35 +496,22 @@ async function submitApp() {
     date: dateStr,
     time: selectedTime
   };
-
-  const { error } = await supabase.from('applications').insert([data]);
-  if (error) {
-    alert('저장 중 오류가 발생했습니다: ' + error.message);
-    return;
-  }
+  const { error } = await db.from('applications').insert([data]);
+  if (error) { alert('저장 오류: ' + error.message); return; }
   showScreen('done');
 }
 
-// ===================== 초기화 =====================
 function resetAndHome() {
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-age').value = '';
+  ['f-name','f-age','f-phone','f-address','f-school','f-dept','f-period'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-gender').value = '';
+  document.getElementById('f-year').value = '';
   document.getElementById('f-military').value = '';
   document.getElementById('f-military').style.display = 'none';
-  document.getElementById('f-phone').value = '';
-  document.getElementById('f-address').value = '';
-  document.getElementById('f-school').value = '';
-  document.getElementById('f-dept').value = '';
-  document.getElementById('f-year').value = '';
-  document.getElementById('f-period').value = '';
   document.getElementById('career-list').innerHTML = '<div class="career-item"><input type="text" placeholder="예: XX학원 수학 튜터 (2023.01~2023.06)"><button class="career-del" onclick="removeCareer(this)">✕</button></div>';
-  selectedDate = null;
-  selectedTime = null;
+  selectedDate = null; selectedTime = null;
   showScreen('home');
 }
 
-// ===================== 관리자 =====================
 function checkAdmin() {
   const pw = document.getElementById('admin-pw').value;
   if (pw === ADMIN_PASSWORD) {
@@ -604,11 +526,9 @@ function checkAdmin() {
 
 async function loadApplicants() {
   document.getElementById('applicant-list').innerHTML = '<div class="loading">불러오는 중...</div>';
-  const { data, error } = await supabase.from('applications').select('*').order('created_at', { ascending: false });
-  if (error) {
-    document.getElementById('applicant-list').innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다.</div>';
-    return;
-  }
+  if (!db) { setTimeout(loadApplicants, 500); return; }
+  const { data, error } = await db.from('applications').select('*').order('created_at', { ascending: false });
+  if (error) { document.getElementById('applicant-list').innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다.</div>'; return; }
   allApplications = data || [];
   renderApplicants('all');
 }
@@ -622,12 +542,7 @@ function filterApp(type, btn) {
 function renderApplicants(filter) {
   const list = document.getElementById('applicant-list');
   const filtered = filter === 'all' ? allApplications : allApplications.filter(a => a.type === filter);
-
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="empty-state">📭 아직 지원자가 없습니다</div>';
-    return;
-  }
-
+  if (filtered.length === 0) { list.innerHTML = '<div class="empty-state">📭 아직 지원자가 없습니다</div>'; return; }
   list.innerHTML = '';
   filtered.forEach(app => {
     const isQA = app.type === '질의응답조교';
@@ -640,19 +555,19 @@ function renderApplicants(filter) {
           <div class="avatar ${isQA ? 'avatar-qa' : 'avatar-work'}">${initials}</div>
           <div>
             <div class="a-name">${app.name || '(미입력)'}</div>
-            <div class="a-meta">${app.school || ''} ${app.dept || ''} ${app.year || ''} · ${app.date || ''} ${app.time || ''}</div>
+            <div class="a-meta">${app.school||''} ${app.dept||''} ${app.year||''} · ${app.date||''} ${app.time||''}</div>
           </div>
         </div>
         <span class="a-badge ${isQA ? 'badge-qa' : 'badge-work'}">${app.type}</span>
       </div>
       <div class="applicant-detail">
         <div class="detail-grid">
-          <div class="detail-item"><div class="dl">나이</div><div class="dv">${app.age || '-'}</div></div>
-          <div class="detail-item"><div class="dl">성별</div><div class="dv">${app.gender || '-'}</div></div>
-          <div class="detail-item"><div class="dl">전화번호</div><div class="dv">${app.phone || '-'}</div></div>
-          <div class="detail-item"><div class="dl">거주지</div><div class="dv">${app.address || '-'}</div></div>
-          <div class="detail-item"><div class="dl">근무가능기간</div><div class="dv">${app.period || '-'}</div></div>
-          <div class="detail-item"><div class="dl">면접 일정</div><div class="dv">${app.date || ''} ${app.time || ''}</div></div>
+          <div class="detail-item"><div class="dl">나이</div><div class="dv">${app.age||'-'}</div></div>
+          <div class="detail-item"><div class="dl">성별</div><div class="dv">${app.gender||'-'}</div></div>
+          <div class="detail-item"><div class="dl">전화번호</div><div class="dv">${app.phone||'-'}</div></div>
+          <div class="detail-item"><div class="dl">거주지</div><div class="dv">${app.address||'-'}</div></div>
+          <div class="detail-item"><div class="dl">근무가능기간</div><div class="dv">${app.period||'-'}</div></div>
+          <div class="detail-item"><div class="dl">면접 일정</div><div class="dv">${app.date||''} ${app.time||''}</div></div>
           ${app.careers ? `<div class="detail-item detail-full"><div class="dl">경력</div><div class="dv">${app.careers}</div></div>` : ''}
         </div>
       </div>`;
