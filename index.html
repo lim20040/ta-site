@@ -1,3 +1,6 @@
+bash
+
+cat > /mnt/user-data/outputs/index.html << 'ENDOFFILE'
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,150 +10,115 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; }
-
-.top-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.75rem 1.5rem;
-  background: #fff;
-  border-bottom: 1px solid #e5e5e5;
-  position: sticky; top: 0; z-index: 10;
-}
+.top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: #fff; border-bottom: 1px solid #e5e5e5; position: sticky; top: 0; z-index: 10; }
 .logo { font-size: 15px; font-weight: 600; color: #111; }
-.admin-btn {
-  font-size: 12px; color: #666;
-  background: none; border: 1px solid #ddd;
-  padding: 5px 12px; border-radius: 8px; cursor: pointer;
-}
+.admin-btn { font-size: 12px; color: #666; background: none; border: 1px solid #ddd; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
 .admin-btn:hover { background: #f5f5f5; }
-
 .screen { display: none; }
 .screen.active { display: block; }
 
+/* 홈 */
 .home-wrap { max-width: 480px; margin: 0 auto; padding: 3rem 1.5rem; text-align: center; }
 .home-wrap h1 { font-size: 24px; font-weight: 700; margin-bottom: 0.5rem; }
 .home-wrap p { font-size: 14px; color: #666; margin-bottom: 2.5rem; }
 .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.type-card {
-  background: #fff; border: 1px solid #e5e5e5; border-radius: 16px;
-  padding: 2rem 1rem; cursor: pointer; transition: all 0.15s;
-}
+.type-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 16px; padding: 2rem 1rem; cursor: pointer; transition: all 0.15s; }
 .type-card:hover { border-color: #111; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 .type-card .icon { font-size: 36px; margin-bottom: 0.75rem; }
 .type-card h2 { font-size: 15px; font-weight: 600; line-height: 1.5; }
 
+/* 폼 */
 .form-wrap { max-width: 540px; margin: 0 auto; padding: 2rem 1.5rem; }
 .progress-bar { display: flex; gap: 6px; margin-bottom: 1.5rem; }
 .step { flex: 1; height: 4px; border-radius: 2px; background: #e5e5e5; }
 .step.done { background: #111; }
-
-.form-badge {
-  display: inline-block; font-size: 12px; padding: 3px 12px;
-  border-radius: 20px; background: #e8f0fe; color: #1a56db;
-  margin-bottom: 0.75rem;
-}
-.form-wrap h2 { font-size: 20px; font-weight: 700; margin-bottom: 1.5rem; }
-
+.form-badge { display: inline-block; font-size: 12px; padding: 3px 12px; border-radius: 20px; background: #e8f0fe; color: #1a56db; margin-bottom: 0.75rem; }
+.form-title-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1.5rem; }
+.form-title-row h2 { font-size: 20px; font-weight: 700; }
+.form-title-note { font-size: 12px; color: #aaa; }
 .form-group { margin-bottom: 1rem; }
 .form-group label { font-size: 13px; color: #555; display: block; margin-bottom: 5px; font-weight: 500; }
-.form-group input, .form-group select {
-  width: 100%; padding: 10px 12px; font-size: 14px;
-  border: 1px solid #ddd; border-radius: 10px;
-  background: #fff; color: #111; outline: none;
-  font-family: inherit;
-}
+.form-group input, .form-group select { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 10px; background: #fff; color: #111; outline: none; font-family: inherit; }
 .form-group input:focus, .form-group select:focus { border-color: #111; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .gender-row { display: flex; gap: 0.5rem; }
 .gender-row select { flex: 1; }
-
 .career-item { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
 .career-item input { flex: 1; }
-.career-del {
-  background: none; border: 1px solid #ddd; border-radius: 8px;
-  padding: 0 10px; cursor: pointer; color: #999; font-size: 16px;
-}
+.career-del { background: none; border: 1px solid #ddd; border-radius: 8px; padding: 0 10px; cursor: pointer; color: #999; font-size: 16px; }
 .career-del:hover { background: #fff0f0; border-color: #f00; color: #f00; }
-.add-career-btn {
-  width: 100%; padding: 8px; font-size: 13px; color: #1a56db;
-  background: none; border: 1px dashed #93c5fd; border-radius: 10px; cursor: pointer;
-}
+.add-career-btn { width: 100%; padding: 8px; font-size: 13px; color: #1a56db; background: none; border: 1px dashed #93c5fd; border-radius: 10px; cursor: pointer; }
 .add-career-btn:hover { background: #eff6ff; }
-
 .nav-btns { display: flex; gap: 0.75rem; margin-top: 2rem; }
-.btn-prev {
-  flex: 1; padding: 12px; border-radius: 10px;
-  border: 1px solid #ddd; background: none; color: #666; cursor: pointer; font-size: 14px; font-family: inherit;
-}
-.btn-next {
-  flex: 2; padding: 12px; border-radius: 10px;
-  border: none; background: #111; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit;
-}
+.btn-prev { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #ddd; background: none; color: #666; cursor: pointer; font-size: 14px; font-family: inherit; }
+.btn-next { flex: 2; padding: 12px; border-radius: 10px; border: none; background: #111; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
 .btn-prev:hover { background: #f5f5f5; }
 .btn-next:hover { background: #333; }
 
+/* 날짜 */
 .cal-wrap { max-width: 480px; margin: 0 auto; padding: 2rem 1.5rem; }
-.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
-.cal-header h3 { font-size: 18px; font-weight: 700; }
-.cal-nav {
-  background: none; border: 1px solid #ddd; border-radius: 8px;
-  padding: 6px 12px; cursor: pointer; font-size: 14px; color: #555;
-}
-.cal-nav:hover { background: #f5f5f5; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.cal-day-name { font-size: 12px; color: #999; text-align: center; padding: 8px 0; font-weight: 500; }
-.cal-day {
-  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  font-size: 14px; border-radius: 10px; cursor: pointer; color: #111;
-}
-.cal-day:hover { background: #f5f5f5; }
-.cal-day.selected { background: #111; color: #fff; font-weight: 600; }
-.cal-day.other-month { color: #ccc; pointer-events: none; }
-.cal-day.today { color: #1a56db; font-weight: 700; }
-.cal-day.past { color: #ccc; pointer-events: none; }
-.selected-date-label { text-align: center; margin: 1rem 0 0; font-size: 14px; color: #555; min-height: 20px; }
+.date-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.date-option { padding: 1rem 1.25rem; background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 500; transition: all 0.15s; }
+.date-option:hover { border-color: #111; }
+.date-option.selected { background: #111; color: #fff; border-color: #111; }
+.no-dates { text-align: center; padding: 3rem; color: #aaa; font-size: 14px; }
 
+/* 시간 */
 .time-wrap { max-width: 480px; margin: 0 auto; padding: 2rem 1.5rem; }
-.time-section { margin-bottom: 1.5rem; }
-.time-section h3 { font-size: 14px; color: #888; margin-bottom: 0.75rem; font-weight: 500; }
-.time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
-.time-btn {
-  padding: 10px 4px; text-align: center; font-size: 13px;
-  border: 1px solid #e5e5e5; border-radius: 10px; cursor: pointer;
-  background: #fff; color: #111; font-family: inherit;
-}
+.time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-bottom: 1.5rem; }
+.time-btn { padding: 12px 4px; text-align: center; font-size: 14px; border: 1px solid #e5e5e5; border-radius: 10px; cursor: pointer; background: #fff; color: #111; font-family: inherit; }
 .time-btn:hover { border-color: #999; }
 .time-btn.selected { background: #111; color: #fff; border-color: #111; font-weight: 600; }
+.time-btn.taken { background: #f5f5f5; color: #ccc; border-color: #eee; cursor: not-allowed; text-decoration: line-through; }
 
+/* 완료 */
 .done-wrap { max-width: 400px; margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
 .done-icon { font-size: 56px; margin-bottom: 1.5rem; }
 .done-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.75rem; }
 .done-wrap p { font-size: 13px; color: #aaa; }
 
+/* 관리자 로그인 */
 .admin-login-wrap { max-width: 340px; margin: 5rem auto; padding: 2rem; background: #fff; border-radius: 16px; border: 1px solid #e5e5e5; }
 .admin-login-wrap h2 { font-size: 20px; font-weight: 700; margin-bottom: 1.5rem; text-align: center; }
-.admin-login-wrap input {
-  width: 100%; padding: 10px 12px; font-size: 14px;
-  border: 1px solid #ddd; border-radius: 10px; margin-bottom: 0.75rem;
-  outline: none; font-family: inherit; display: block;
-}
+.admin-login-wrap input { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 0.75rem; outline: none; font-family: inherit; display: block; }
 .admin-login-wrap input:focus { border-color: #111; }
 .error-msg { font-size: 13px; color: #e00; margin-top: 0.5rem; text-align: center; min-height: 18px; }
 
-.admin-wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+/* 관리자 패널 */
+.admin-wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem; }
 .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
 .admin-header h2 { font-size: 22px; font-weight: 700; }
-.filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
-.filter-tab {
-  padding: 6px 16px; font-size: 13px; border-radius: 20px;
-  border: 1px solid #ddd; background: none; cursor: pointer; color: #666; font-family: inherit;
-}
-.filter-tab.active { background: #111; color: #fff; border-color: #111; }
+.admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #e5e5e5; }
+.admin-tab { padding: 8px 18px; font-size: 14px; border: none; background: none; cursor: pointer; color: #888; font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.admin-tab.active { color: #111; font-weight: 600; border-bottom-color: #111; }
 
+/* 관리자 - 일정 설정 */
+.schedule-section { background: #fff; border: 1px solid #e5e5e5; border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
+.schedule-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 1rem; }
+.date-add-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.date-add-row input { flex: 1; padding: 9px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 10px; outline: none; font-family: inherit; }
+.date-add-row input:focus { border-color: #111; }
+.btn-add { padding: 9px 18px; background: #111; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-family: inherit; white-space: nowrap; }
+.date-tag-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.date-tag { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #f5f5f5; border-radius: 20px; font-size: 13px; }
+.date-tag button { background: none; border: none; cursor: pointer; color: #999; font-size: 14px; line-height: 1; }
+.date-tag button:hover { color: #e00; }
+.time-add-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+.time-add-row input { width: 130px; padding: 9px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 10px; outline: none; font-family: inherit; }
+.time-tag-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.time-tag { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #f5f5f5; border-radius: 20px; font-size: 13px; }
+.time-tag button { background: none; border: none; cursor: pointer; color: #999; font-size: 14px; line-height: 1; }
+.time-tag button:hover { color: #e00; }
+.save-schedule-btn { width: 100%; padding: 12px; background: #111; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; font-family: inherit; margin-top: 1rem; }
+.save-schedule-btn:hover { background: #333; }
+.save-msg { text-align: center; font-size: 13px; color: #16a34a; margin-top: 0.5rem; min-height: 18px; }
+
+/* 관리자 - 지원자 */
+.filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.filter-tab { padding: 6px 16px; font-size: 13px; border-radius: 20px; border: 1px solid #ddd; background: none; cursor: pointer; color: #666; font-family: inherit; }
+.filter-tab.active { background: #111; color: #fff; border-color: #111; }
 .applicant-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 14px; margin-bottom: 0.75rem; overflow: hidden; }
-.applicant-card-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1rem 1.25rem; cursor: pointer;
-}
+.applicant-card-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; cursor: pointer; }
 .applicant-card-header:hover { background: #fafafa; }
 .a-left { display: flex; align-items: center; gap: 0.75rem; }
 .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
@@ -178,6 +146,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   <button class="admin-btn" onclick="showScreen('admin-login')">🔒 관리자</button>
 </div>
 
+<!-- 홈 -->
 <div class="screen active" id="screen-home">
   <div class="home-wrap">
     <h1>조교 지원</h1>
@@ -195,6 +164,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 정보 입력 -->
 <div class="screen" id="screen-form">
   <div class="form-wrap">
     <div class="progress-bar">
@@ -203,7 +173,11 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       <div class="step"></div>
     </div>
     <div class="form-badge" id="form-type-badge"></div>
-    <h2>기본 정보 입력</h2>
+    <div class="form-title-row">
+      <h2>기본 정보 입력</h2>
+      <span class="form-title-note">(모두 기재해주세요)</span>
+    </div>
+
     <div class="form-row">
       <div class="form-group"><label>이름</label><input type="text" id="f-name" placeholder="홍길동"></div>
       <div class="form-group"><label>나이</label><input type="number" id="f-age" placeholder="24"></div>
@@ -224,10 +198,10 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       </div>
     </div>
     <div class="form-group"><label>전화번호</label><input type="tel" id="f-phone" placeholder="010-0000-0000"></div>
-    <div class="form-group"><label>거주지</label><input type="text" id="f-address" placeholder="서울시 관악구"></div>
+    <div class="form-group"><label>거주지</label><input type="text" id="f-address" placeholder="예: 관악구 신림동"></div>
     <div class="form-row">
-      <div class="form-group"><label>학교</label><input type="text" id="f-school" placeholder="서울대학교"></div>
-      <div class="form-group"><label>학과</label><input type="text" id="f-dept" placeholder="컴퓨터공학과"></div>
+      <div class="form-group"><label>학교</label><input type="text" id="f-school" placeholder="xx대학교"></div>
+      <div class="form-group"><label>학과</label><input type="text" id="f-dept" placeholder="xx학과"></div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -235,7 +209,8 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
         <select id="f-year">
           <option value="">선택</option>
           <option>1학년</option><option>2학년</option><option>3학년</option>
-          <option>4학년</option><option>대학원생</option>
+          <option>4학년</option><option>5학년</option><option>6학년</option>
+          <option>대학원생</option>
         </select>
       </div>
       <div class="form-group"><label>근무가능기간</label><input type="text" id="f-period" placeholder="2025.03 ~ 2025.06"></div>
@@ -244,7 +219,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       <label>경력</label>
       <div id="career-list">
         <div class="career-item">
-          <input type="text" placeholder="예: XX학원 수학 튜터 (2023.01~2023.06)">
+          <input type="text" placeholder="예: xx학원 수학 튜터 (2023.01~2023.06)">
           <button class="career-del" onclick="removeCareer(this)">✕</button>
         </div>
       </div>
@@ -257,6 +232,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 면접 날짜 선택 -->
 <div class="screen" id="screen-date">
   <div class="cal-wrap">
     <div class="progress-bar">
@@ -265,14 +241,8 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       <div class="step"></div>
     </div>
     <div class="form-badge" id="date-type-badge"></div>
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">날짜 선택</h2>
-    <div class="cal-header">
-      <button class="cal-nav" onclick="changeMonth(-1)">◀</button>
-      <h3 id="cal-title"></h3>
-      <button class="cal-nav" onclick="changeMonth(1)">▶</button>
-    </div>
-    <div class="cal-grid" id="cal-grid"></div>
-    <div class="selected-date-label" id="selected-date-label">날짜를 선택해주세요</div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">면접 날짜 선택</h2>
+    <div id="date-list" class="date-list"></div>
     <div class="nav-btns">
       <button class="btn-prev" onclick="showScreen('form')">이전</button>
       <button class="btn-next" onclick="goTime()">다음</button>
@@ -280,6 +250,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 면접 시간 선택 -->
 <div class="screen" id="screen-time">
   <div class="time-wrap">
     <div class="progress-bar">
@@ -288,15 +259,9 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       <div class="step done"></div>
     </div>
     <div class="form-badge" id="time-type-badge"></div>
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">시간 선택</h2>
-    <div class="time-section">
-      <h3>오전</h3>
-      <div class="time-grid" id="am-grid"></div>
-    </div>
-    <div class="time-section">
-      <h3>오후</h3>
-      <div class="time-grid" id="pm-grid"></div>
-    </div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:0.5rem">면접 시간 선택</h2>
+    <p style="font-size:13px;color:#aaa;margin-bottom:1.5rem">시간별 1명 선착순 · 취소선은 마감</p>
+    <div class="time-grid" id="time-grid"></div>
     <div class="nav-btns">
       <button class="btn-prev" onclick="showScreen('date')">이전</button>
       <button class="btn-next" onclick="submitApp()">제출하기</button>
@@ -304,6 +269,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 완료 -->
 <div class="screen" id="screen-done">
   <div class="done-wrap">
     <div class="done-icon">✅</div>
@@ -315,6 +281,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 관리자 로그인 -->
 <div class="screen" id="screen-admin-login">
   <div class="admin-login-wrap">
     <h2>🔒 관리자 로그인</h2>
@@ -327,18 +294,49 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 관리자 패널 -->
 <div class="screen" id="screen-admin">
   <div class="admin-wrap">
     <div class="admin-header">
-      <h2>지원자 관리</h2>
+      <h2>관리자 페이지</h2>
       <button class="admin-btn" onclick="showScreen('home')">✕ 나가기</button>
     </div>
-    <div class="filter-tabs">
-      <button class="filter-tab active" onclick="filterApp('all',this)">전체</button>
-      <button class="filter-tab" onclick="filterApp('질의응답조교',this)">질의응답조교</button>
-      <button class="filter-tab" onclick="filterApp('업무조교',this)">업무조교</button>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('applicants', this)">지원자 목록</button>
+      <button class="admin-tab" onclick="switchAdminTab('schedule', this)">일정 설정</button>
     </div>
-    <div id="applicant-list"></div>
+
+    <!-- 지원자 목록 탭 -->
+    <div id="tab-applicants">
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterApp('all',this)">전체</button>
+        <button class="filter-tab" onclick="filterApp('질의응답조교',this)">질의응답조교</button>
+        <button class="filter-tab" onclick="filterApp('업무조교',this)">업무조교</button>
+      </div>
+      <div id="applicant-list"></div>
+    </div>
+
+    <!-- 일정 설정 탭 -->
+    <div id="tab-schedule" style="display:none">
+      <div class="schedule-section">
+        <h3>📅 면접 날짜 설정</h3>
+        <div class="date-add-row">
+          <input type="date" id="admin-date-input">
+          <button class="btn-add" onclick="addAdminDate()">추가</button>
+        </div>
+        <div class="date-tag-list" id="admin-date-tags"></div>
+      </div>
+      <div class="schedule-section">
+        <h3>⏰ 면접 시간 설정</h3>
+        <div class="time-add-row">
+          <input type="time" id="admin-time-input">
+          <button class="btn-add" onclick="addAdminTime()">추가</button>
+        </div>
+        <div class="time-tag-list" id="admin-time-tags"></div>
+      </div>
+      <button class="save-schedule-btn" onclick="saveSchedule()">저장하기</button>
+      <div class="save-msg" id="save-msg"></div>
+    </div>
   </div>
 </div>
 
@@ -351,9 +349,10 @@ let db = null;
 let currentType = '';
 let selectedDate = null;
 let selectedTime = null;
-let calYear = new Date().getFullYear();
-let calMonth = new Date().getMonth();
 let allApplications = [];
+let adminDates = [];
+let adminTimes = [];
+let bookedTimes = {};
 
 async function initDB() {
   const mod = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
@@ -394,93 +393,96 @@ function removeCareer(btn) {
   else btn.previousElementSibling.value = '';
 }
 
-function goDate() {
-  renderCalendar();
+// 날짜 화면
+async function goDate() {
   showScreen('date');
-}
-
-const DAYS = ['일','월','화','수','목','금','토'];
-
-function renderCalendar() {
-  document.getElementById('cal-title').textContent = calYear + '년 ' + (calMonth + 1) + '월';
-  const grid = document.getElementById('cal-grid');
-  grid.innerHTML = '';
-  DAYS.forEach(d => {
+  const dateList = document.getElementById('date-list');
+  dateList.innerHTML = '<div class="loading">날짜 불러오는 중...</div>';
+  if (!db) await new Promise(r => setTimeout(r, 800));
+  const { data } = await db.from('schedule').select('*').eq('key', 'dates').single();
+  const dates = (data && data.value) ? JSON.parse(data.value) : [];
+  if (dates.length === 0) {
+    dateList.innerHTML = '<div class="no-dates">📭 관리자가 아직 날짜를 설정하지 않았습니다</div>';
+    return;
+  }
+  selectedDate = null;
+  dateList.innerHTML = '';
+  dates.sort().forEach(d => {
     const el = document.createElement('div');
-    el.className = 'cal-day-name';
-    el.textContent = d;
-    grid.appendChild(el);
+    el.className = 'date-option';
+    el.textContent = formatDateKor(d);
+    el.onclick = () => {
+      document.querySelectorAll('.date-option').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedDate = d;
+    };
+    dateList.appendChild(el);
   });
-  const today = new Date(); today.setHours(0,0,0,0);
-  const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const prevDays = new Date(calYear, calMonth, 0).getDate();
-  for (let i = firstDay - 1; i >= 0; i--) {
-    const el = document.createElement('div');
-    el.className = 'cal-day other-month';
-    el.textContent = prevDays - i;
-    grid.appendChild(el);
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    const el = document.createElement('div');
-    el.className = 'cal-day';
-    const thisDate = new Date(calYear, calMonth, d);
-    if (thisDate < today) el.classList.add('past');
-    if (thisDate.getTime() === today.getTime()) el.classList.add('today');
-    if (selectedDate && selectedDate.y === calYear && selectedDate.m === calMonth && selectedDate.d === d) el.classList.add('selected');
-    el.textContent = d;
-    el.onclick = () => selectDay(d, el);
-    grid.appendChild(el);
-  }
 }
 
-function selectDay(d, el) {
-  document.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedDate = { y: calYear, m: calMonth, d };
-  document.getElementById('selected-date-label').textContent = calYear + '년 ' + (calMonth + 1) + '월 ' + d + '일 선택됨';
+function formatDateKor(d) {
+  const parts = d.split('-');
+  return parts[0] + '년 ' + parseInt(parts[1]) + '월 ' + parseInt(parts[2]) + '일';
 }
 
-function changeMonth(dir) {
-  calMonth += dir;
-  if (calMonth < 0) { calMonth = 11; calYear--; }
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  renderCalendar();
-}
-
-function goTime() {
+// 시간 화면
+async function goTime() {
   if (!selectedDate) { alert('날짜를 선택해주세요.'); return; }
-  renderTimeGrid();
   showScreen('time');
+  const grid = document.getElementById('time-grid');
+  grid.innerHTML = '<div class="loading" style="grid-column:1/-1">시간 불러오는 중...</div>';
+
+  const [timesRes, bookedRes] = await Promise.all([
+    db.from('schedule').select('*').eq('key', 'times').single(),
+    db.from('applications').select('time').eq('date', selectedDate)
+  ]);
+
+  const times = (timesRes.data && timesRes.data.value) ? JSON.parse(timesRes.data.value) : [];
+  const booked = new Set((bookedRes.data || []).map(r => r.time));
+
+  if (times.length === 0) {
+    grid.innerHTML = '<div class="no-dates" style="grid-column:1/-1">📭 관리자가 아직 시간을 설정하지 않았습니다</div>';
+    return;
+  }
+
+  selectedTime = null;
+  grid.innerHTML = '';
+  times.sort().forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'time-btn';
+    btn.textContent = t;
+    if (booked.has(t)) {
+      btn.classList.add('taken');
+      btn.disabled = true;
+    } else {
+      btn.onclick = () => {
+        document.querySelectorAll('.time-btn:not(.taken)').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedTime = t;
+      };
+    }
+    grid.appendChild(btn);
+  });
 }
 
-function renderTimeGrid() {
-  document.getElementById('am-grid').innerHTML = '';
-  document.getElementById('pm-grid').innerHTML = '';
-  ['09:00','09:30','10:00','10:30','11:00','11:30'].forEach(t => document.getElementById('am-grid').appendChild(makeTimeBtn(t)));
-  ['12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'].forEach(t => document.getElementById('pm-grid').appendChild(makeTimeBtn(t)));
-}
-
-function makeTimeBtn(t) {
-  const btn = document.createElement('button');
-  btn.className = 'time-btn' + (selectedTime === t ? ' selected' : '');
-  btn.textContent = t;
-  btn.onclick = () => {
-    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedTime = t;
-  };
-  return btn;
-}
-
+// 제출
 async function submitApp() {
   if (!selectedTime) { alert('시간을 선택해주세요.'); return; }
   if (!db) { alert('잠시 후 다시 시도해주세요.'); return; }
+
+  // 선착순 재확인
+  const { data: already } = await db.from('applications').select('id').eq('date', selectedDate).eq('time', selectedTime);
+  if (already && already.length > 0) {
+    alert('방금 다른 분이 해당 시간을 선택했습니다. 다른 시간을 선택해주세요.');
+    goTime();
+    return;
+  }
+
   const careers = Array.from(document.querySelectorAll('#career-list .career-item input'))
     .map(i => i.value.trim()).filter(v => v).join(' / ');
   const gender = document.getElementById('f-gender').value;
   const military = gender === '남성' ? document.getElementById('f-military').value : '';
-  const dateStr = selectedDate.y + '.' + String(selectedDate.m + 1).padStart(2,'0') + '.' + String(selectedDate.d).padStart(2,'0');
+
   const data = {
     type: currentType,
     name: document.getElementById('f-name').value || '',
@@ -493,9 +495,10 @@ async function submitApp() {
     year: document.getElementById('f-year').value || '',
     period: document.getElementById('f-period').value || '',
     careers: careers,
-    date: dateStr,
+    date: selectedDate,
     time: selectedTime
   };
+
   const { error } = await db.from('applications').insert([data]);
   if (error) { alert('저장 오류: ' + error.message); return; }
   showScreen('done');
@@ -507,26 +510,115 @@ function resetAndHome() {
   document.getElementById('f-year').value = '';
   document.getElementById('f-military').value = '';
   document.getElementById('f-military').style.display = 'none';
-  document.getElementById('career-list').innerHTML = '<div class="career-item"><input type="text" placeholder="예: XX학원 수학 튜터 (2023.01~2023.06)"><button class="career-del" onclick="removeCareer(this)">✕</button></div>';
+  document.getElementById('career-list').innerHTML = '<div class="career-item"><input type="text" placeholder="예: xx학원 수학 튜터 (2023.01~2023.06)"><button class="career-del" onclick="removeCareer(this)">✕</button></div>';
   selectedDate = null; selectedTime = null;
   showScreen('home');
 }
 
+// 관리자 로그인
 function checkAdmin() {
   const pw = document.getElementById('admin-pw').value;
   if (pw === ADMIN_PASSWORD) {
     document.getElementById('admin-pw').value = '';
     document.getElementById('admin-error').textContent = '';
     loadApplicants();
+    loadScheduleForAdmin();
     showScreen('admin');
   } else {
     document.getElementById('admin-error').textContent = '비밀번호가 올바르지 않습니다.';
   }
 }
 
+// 관리자 탭 전환
+function switchAdminTab(tab, btn) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-applicants').style.display = tab === 'applicants' ? 'block' : 'none';
+  document.getElementById('tab-schedule').style.display = tab === 'schedule' ? 'block' : 'none';
+}
+
+// 관리자 - 일정 불러오기
+async function loadScheduleForAdmin() {
+  if (!db) await new Promise(r => setTimeout(r, 800));
+  const { data: dData } = await db.from('schedule').select('*').eq('key', 'dates').single();
+  const { data: tData } = await db.from('schedule').select('*').eq('key', 'times').single();
+  adminDates = (dData && dData.value) ? JSON.parse(dData.value) : [];
+  adminTimes = (tData && tData.value) ? JSON.parse(tData.value) : [];
+  renderAdminDates();
+  renderAdminTimes();
+}
+
+function renderAdminDates() {
+  const container = document.getElementById('admin-date-tags');
+  container.innerHTML = '';
+  adminDates.sort().forEach(d => {
+    const tag = document.createElement('div');
+    tag.className = 'date-tag';
+    tag.innerHTML = `<span>${formatDateKor(d)}</span><button onclick="removeAdminDate('${d}')">✕</button>`;
+    container.appendChild(tag);
+  });
+}
+
+function renderAdminTimes() {
+  const container = document.getElementById('admin-time-tags');
+  container.innerHTML = '';
+  adminTimes.sort().forEach(t => {
+    const tag = document.createElement('div');
+    tag.className = 'time-tag';
+    tag.innerHTML = `<span>${t}</span><button onclick="removeAdminTime('${t}')">✕</button>`;
+    container.appendChild(tag);
+  });
+}
+
+function addAdminDate() {
+  const val = document.getElementById('admin-date-input').value;
+  if (!val) { alert('날짜를 선택해주세요.'); return; }
+  if (adminDates.includes(val)) { alert('이미 추가된 날짜입니다.'); return; }
+  adminDates.push(val);
+  renderAdminDates();
+  document.getElementById('admin-date-input').value = '';
+}
+
+function removeAdminDate(d) {
+  adminDates = adminDates.filter(x => x !== d);
+  renderAdminDates();
+}
+
+function addAdminTime() {
+  const val = document.getElementById('admin-time-input').value;
+  if (!val) { alert('시간을 선택해주세요.'); return; }
+  if (adminTimes.includes(val)) { alert('이미 추가된 시간입니다.'); return; }
+  adminTimes.push(val);
+  renderAdminTimes();
+  document.getElementById('admin-time-input').value = '';
+}
+
+function removeAdminTime(t) {
+  adminTimes = adminTimes.filter(x => x !== t);
+  renderAdminTimes();
+}
+
+async function saveSchedule() {
+  if (!db) { alert('잠시 후 다시 시도해주세요.'); return; }
+  const btn = document.querySelector('.save-schedule-btn');
+  btn.textContent = '저장 중...';
+  btn.disabled = true;
+
+  await db.from('schedule').upsert([
+    { key: 'dates', value: JSON.stringify(adminDates) },
+    { key: 'times', value: JSON.stringify(adminTimes) }
+  ], { onConflict: 'key' });
+
+  btn.textContent = '저장하기';
+  btn.disabled = false;
+  document.getElementById('save-msg').textContent = '✓ 저장되었습니다!';
+  setTimeout(() => document.getElementById('save-msg').textContent = '', 3000);
+}
+
+// 지원자 목록
 async function loadApplicants() {
   document.getElementById('applicant-list').innerHTML = '<div class="loading">불러오는 중...</div>';
-  if (!db) { setTimeout(loadApplicants, 500); return; }
+  if (!db) await new Promise(r => setTimeout(r, 800));
   const { data, error } = await db.from('applications').select('*').order('created_at', { ascending: false });
   if (error) { document.getElementById('applicant-list').innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다.</div>'; return; }
   allApplications = data || [];
@@ -547,6 +639,7 @@ function renderApplicants(filter) {
   filtered.forEach(app => {
     const isQA = app.type === '질의응답조교';
     const initials = (app.name || '?').slice(-2);
+    const dateLabel = app.date ? formatDateKor(app.date) : '';
     const card = document.createElement('div');
     card.className = 'applicant-card';
     card.innerHTML = `
@@ -555,7 +648,7 @@ function renderApplicants(filter) {
           <div class="avatar ${isQA ? 'avatar-qa' : 'avatar-work'}">${initials}</div>
           <div>
             <div class="a-name">${app.name || '(미입력)'}</div>
-            <div class="a-meta">${app.school||''} ${app.dept||''} ${app.year||''} · ${app.date||''} ${app.time||''}</div>
+            <div class="a-meta">${app.school||''} ${app.dept||''} ${app.year||''} · ${dateLabel} ${app.time||''}</div>
           </div>
         </div>
         <span class="a-badge ${isQA ? 'badge-qa' : 'badge-work'}">${app.type}</span>
@@ -567,7 +660,7 @@ function renderApplicants(filter) {
           <div class="detail-item"><div class="dl">전화번호</div><div class="dv">${app.phone||'-'}</div></div>
           <div class="detail-item"><div class="dl">거주지</div><div class="dv">${app.address||'-'}</div></div>
           <div class="detail-item"><div class="dl">근무가능기간</div><div class="dv">${app.period||'-'}</div></div>
-          <div class="detail-item"><div class="dl">면접 일정</div><div class="dv">${app.date||''} ${app.time||''}</div></div>
+          <div class="detail-item"><div class="dl">면접 일정</div><div class="dv">${dateLabel} ${app.time||''}</div></div>
           ${app.careers ? `<div class="detail-item detail-full"><div class="dl">경력</div><div class="dv">${app.careers}</div></div>` : ''}
         </div>
       </div>`;
@@ -578,8 +671,8 @@ function renderApplicants(filter) {
 function toggleDetail(header) {
   header.nextElementSibling.classList.toggle('open');
 }
-
-renderCalendar();
 </script>
 </body>
 </html>
+ENDOFFILE
+echo "done"
