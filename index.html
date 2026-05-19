@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조교 지원 시스템</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; }
+
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  position: sticky; top: 0; z-index: 10;
+}
+.logo { font-size: 15px; font-weight: 600; color: #111; }
+.admin-btn {
+  font-size: 12px; color: #666;
+  background: none; border: 1px solid #ddd;
+  padding: 5px 12px; border-radius: 8px; cursor: pointer;
+}
+.admin-btn:hover { background: #f5f5f5; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* 홈 */
+.home-wrap { max-width: 480px; margin: 0 auto; padding: 3rem 1.5rem; text-align: center; }
+.home-wrap h1 { font-size: 24px; font-weight: 700; margin-bottom: 0.5rem; }
+.home-wrap p { font-size: 14px; color: #666; margin-bottom: 2.5rem; }
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.type-card {
+  background: #fff; border: 1px solid #e5e5e5; border-radius: 16px;
+  padding: 2rem 1rem; cursor: pointer; transition: all 0.15s;
+}
+.type-card:hover { border-color: #111; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.type-card .icon { font-size: 36px; margin-bottom: 0.75rem; }
+.type-card h2 { font-size: 15px; font-weight: 600; line-height: 1.5; }
+
+/* 폼 */
+.form-wrap { max-width: 540px; margin: 0 auto; padding: 2rem 1.5rem; }
+.progress-bar { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+.step { flex: 1; height: 4px; border-radius: 2px; background: #e5e5e5; }
+.step.done { background: #111; }
+
+.form-badge {
+  display: inline-block; font-size: 12px; padding: 3px 12px;
+  border-radius: 20px; background: #e8f0fe; color: #1a56db;
+  margin-bottom: 0.75rem;
+}
+.form-wrap h2 { font-size: 20px; font-weight: 700; margin-bottom: 1.5rem; }
+
+.form-group { margin-bottom: 1rem; }
+.form-group label { font-size: 13px; color: #555; display: block; margin-bottom: 5px; font-weight: 500; }
+.form-group input, .form-group select {
+  width: 100%; padding: 10px 12px; font-size: 14px;
+  border: 1px solid #ddd; border-radius: 10px;
+  background: #fff; color: #111; outline: none;
+  font-family: inherit;
+}
+.form-group input:focus, .form-group select:focus { border-color: #111; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.gender-row { display: flex; gap: 0.5rem; }
+.gender-row select { flex: 1; }
+
+.career-item { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+.career-item input { flex: 1; }
+.career-del {
+  background: none; border: 1px solid #ddd; border-radius: 8px;
+  padding: 0 10px; cursor: pointer; color: #999; font-size: 16px;
+}
+.career-del:hover { background: #fff0f0; border-color: #f00; color: #f00; }
+.add-career-btn {
+  width: 100%; padding: 8px; font-size: 13px; color: #1a56db;
+  background: none; border: 1px dashed #93c5fd; border-radius: 10px; cursor: pointer;
+}
+.add-career-btn:hover { background: #eff6ff; }
+
+.nav-btns { display: flex; gap: 0.75rem; margin-top: 2rem; }
+.btn-prev {
+  flex: 1; padding: 12px; border-radius: 10px;
+  border: 1px solid #ddd; background: none; color: #666; cursor: pointer; font-size: 14px; font-family: inherit;
+}
+.btn-next {
+  flex: 2; padding: 12px; border-radius: 10px;
+  border: none; background: #111; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit;
+}
+.btn-prev:hover { background: #f5f5f5; }
+.btn-next:hover { background: #333; }
+
+/* 달력 */
+.cal-wrap { max-width: 480px; margin: 0 auto; padding: 2rem 1.5rem; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.cal-header h3 { font-size: 18px; font-weight: 700; }
+.cal-nav {
+  background: none; border: 1px solid #ddd; border-radius: 8px;
+  padding: 6px 12px; cursor: pointer; font-size: 14px; color: #555;
+}
+.cal-nav:hover { background: #f5f5f5; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day-name { font-size: 12px; color: #999; text-align: center; padding: 8px 0; font-weight: 500; }
+.cal-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; border-radius: 10px; cursor: pointer; color: #111;
+}
+.cal-day:hover { background: #f5f5f5; }
+.cal-day.selected { background: #111; color: #fff; font-weight: 600; }
+.cal-day.other-month { color: #ccc; pointer-events: none; }
+.cal-day.today { color: #1a56db; font-weight: 700; }
+.cal-day.past { color: #ccc; pointer-events: none; }
+.selected-date-label { text-align: center; margin: 1rem 0 0; font-size: 14px; color: #555; min-height: 20px; }
+
+/* 시간 */
+.time-wrap { max-width: 480px; margin: 0 auto; padding: 2rem 1.5rem; }
+.time-section { margin-bottom: 1.5rem; }
+.time-section h3 { font-size: 14px; color: #888; margin-bottom: 0.75rem; font-weight: 500; }
+.time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+.time-btn {
+  padding: 10px 4px; text-align: center; font-size: 13px;
+  border: 1px solid #e5e5e5; border-radius: 10px; cursor: pointer;
+  background: #fff; color: #111; font-family: inherit;
+}
+.time-btn:hover { border-color: #999; }
+.time-btn.selected { background: #111; color: #fff; border-color: #111; font-weight: 600; }
+
+/* 완료 */
+.done-wrap { max-width: 400px; margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
+.done-icon { font-size: 56px; margin-bottom: 1.5rem; }
+.done-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.75rem; }
+.done-wrap p { font-size: 13px; color: #aaa; }
+
+/* 관리자 로그인 */
+.admin-login-wrap { max-width: 340px; margin: 5rem auto; padding: 2rem; background: #fff; border-radius: 16px; border: 1px solid #e5e5e5; }
+.admin-login-wrap h2 { font-size: 20px; font-weight: 700; margin-bottom: 1.5rem; text-align: center; }
+.admin-login-wrap input {
+  width: 100%; padding: 10px 12px; font-size: 14px;
+  border: 1px solid #ddd; border-radius: 10px; margin-bottom: 0.75rem;
+  outline: none; font-family: inherit;
+}
+.admin-login-wrap input:focus { border-color: #111; }
+.admin-login-wrap .btn-next { width: 100%; }
+.error-msg { font-size: 13px; color: #e00; margin-top: 0.5rem; text-align: center; min-height: 18px; }
+
+/* 관리자 패널 */
+.admin-wrap { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+.admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.admin-header h2 { font-size: 22px; font-weight: 700; }
+.filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.filter-tab {
+  padding: 6px 16px; font-size: 13px; border-radius: 20px;
+  border: 1px solid #ddd; background: none; cursor: pointer; color: #666; font-family: inherit;
+}
+.filter-tab.active { background: #111; color: #fff; border-color: #111; }
+
+.applicant-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 14px; margin-bottom: 0.75rem; overflow: hidden; }
+.applicant-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; cursor: pointer;
+}
+.applicant-card-header:hover { background: #fafafa; }
+.a-left { display: flex; align-items: center; gap: 0.75rem; }
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+}
+.avatar-qa { background: #e8f0fe; color: #1a56db; }
+.avatar-work { background: #dcfce7; color: #16a34a; }
+.a-name { font-size: 15px; font-weight: 600; }
+.a-meta { font-size: 12px; color: #888; margin-top: 2px; }
+.a-badge { font-size: 11px; padding: 4px 12px; border-radius: 20px; }
+.badge-qa { background: #e8f0fe; color: #1a56db; }
+.badge-work { background: #dcfce7; color: #16a34a; }
+
+.applicant-detail { display: none; padding: 1rem 1.25rem; border-top: 1px solid #f0f0f0; background: #fafafa; }
+.applicant-detail.open { display: block; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; }
+.detail-item .dl { font-size: 12px; color: #999; margin-bottom: 2px; }
+.detail-item .dv { font-size: 14px; color: #111; }
+.detail-full { grid-column: 1 / -1; }
+
+.empty-state { text-align: center; padding: 4rem; color: #aaa; font-size: 14px; }
+.loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="logo">🎓 조교 지원 시스템</span>
+  <button class="admin-btn" onclick="showScreen('admin-login')">🔒 관리자</button>
+</div>
+
+<!-- 홈 -->
+<div class="screen active" id="screen-home">
+  <div class="home-wrap">
+    <h1>조교 지원</h1>
+    <p>지원하실 조교 유형을 선택해주세요</p>
+    <div class="card-grid">
+      <div class="type-card" onclick="selectType('질의응답조교')">
+        <div class="icon">💬</div>
+        <h2>질의응답<br>조교 지원</h2>
+      </div>
+      <div class="type-card" onclick="selectType('업무조교')">
+        <div class="icon">💼</div>
+        <h2>업무조교<br>지원</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 정보 입력 -->
+<div class="screen" id="screen-form">
+  <div class="form-wrap">
+    <div class="progress-bar">
+      <div class="step done"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+    </div>
+    <div class="form-badge" id="form-type-badge"></div>
+    <h2>기본 정보 입력</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>이름</label>
+        <input type="text" id="f-name" placeholder="홍길동">
+      </div>
+      <div class="form-group">
+        <label>나이</label>
+        <input type="number" id="f-age" placeholder="24">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>성별</label>
+      <div class="gender-row">
+        <select id="f-gender" onchange="handleGender()">
+          <option value="">선택</option>
+          <option value="여성">여성</option>
+          <option value="남성">남성</option>
+        </select>
+        <select id="f-military" style="display:none">
+          <option value="">군필 여부</option>
+          <option value="군필">군필</option>
+          <option value="미필">미필</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>전화번호</label>
+      <input type="tel" id="f-phone" placeholder="010-0000-0000">
+    </div>
+
+    <div class="form-group">
+      <label>거주지</label>
+      <input type="text" id="f-address" placeholder="서울시 관악구">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>학교</label>
+        <input type="text" id="f-school" placeholder="서울대학교">
+      </div>
+      <div class="form-group">
+        <label>학과</label>
+        <input type="text" id="f-dept" placeholder="컴퓨터공학과">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>학년</label>
+        <select id="f-year">
+          <option value="">선택</option>
+          <option>1학년</option><option>2학년</option><option>3학년</option>
+          <option>4학년</option><option>대학원생</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>근무가능기간</label>
+        <input type="text" id="f-period" placeholder="2025.03 ~ 2025.06">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>경력</label>
+      <div id="career-list">
+        <div class="career-item">
+          <input type="text" placeholder="예: XX학원 수학 튜터 (2023.01~2023.06)">
+          <button class="career-del" onclick="removeCareer(this)">✕</button>
+        </div>
+      </div>
+      <button class="add-career-btn" onclick="addCareer()">+ 항목 추가</button>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-prev" onclick="showScreen('home')">이전</button>
+      <button class="btn-next" onclick="goDate()">다음</button>
+    </div>
+  </div>
+</div>
+
+<!-- 날짜 선택 -->
+<div class="screen" id="screen-date">
+  <div class="cal-wrap">
+    <div class="progress-bar">
+      <div class="step done"></div>
+      <div class="step done"></div>
+      <div class="step"></div>
+    </div>
+    <div class="form-badge" id="date-type-badge"></div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">날짜 선택</h2>
+    <div class="cal-header">
+      <button class="cal-nav" onclick="changeMonth(-1)">◀</button>
+      <h3 id="cal-title"></h3>
+      <button class="cal-nav" onclick="changeMonth(1)">▶</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="selected-date-label" id="selected-date-label">날짜를 선택해주세요</div>
+    <div class="nav-btns">
+      <button class="btn-prev" onclick="showScreen('form')">이전</button>
+      <button class="btn-next" onclick="goTime()">다음</button>
+    </div>
+  </div>
+</div>
+
+<!-- 시간 선택 -->
+<div class="screen" id="screen-time">
+  <div class="time-wrap">
+    <div class="progress-bar">
+      <div class="step done"></div>
+      <div class="step done"></div>
+      <div class="step done"></div>
+    </div>
+    <div class="form-badge" id="time-type-badge"></div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:1.5rem">시간 선택</h2>
+    <div class="time-section">
+      <h3>오전</h3>
+      <div class="time-grid" id="am-grid"></div>
+    </div>
+    <div class="time-section">
+      <h3>오후</h3>
+      <div class="time-grid" id="pm-grid"></div>
+    </div>
+    <div class="nav-btns">
+      <button class="btn-prev" onclick="showScreen('date')">이전</button>
+      <button class="btn-next" onclick="submitApp()">제출하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 완료 -->
+<div class="screen" id="screen-done">
+  <div class="done-wrap">
+    <div class="done-icon">✅</div>
+    <h2>지원해주셔서 감사합니다.</h2>
+    <p>문제가 있을 시 다시 연락드립니다.</p>
+    <div class="nav-btns" style="margin-top:2rem;max-width:200px;margin-left:auto;margin-right:auto">
+      <button class="btn-next" onclick="resetAndHome()">처음으로</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 로그인 -->
+<div class="screen" id="screen-admin-login">
+  <div class="admin-login-wrap">
+    <h2>🔒 관리자 로그인</h2>
+    <input type="password" id="admin-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkAdmin()">
+    <button class="btn-next" onclick="checkAdmin()">로그인</button>
+    <div class="error-msg" id="admin-error"></div>
+    <div style="margin-top:0.75rem">
+      <button class="btn-prev" style="width:100%" onclick="showScreen('home')">돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 패널 -->
+<div class="screen" id="screen-admin">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <h2>지원자 관리</h2>
+      <button class="admin-btn" onclick="showScreen('home')">✕ 나가기</button>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterApp('all',this)">전체</button>
+      <button class="filter-tab" onclick="filterApp('질의응답조교',this)">질의응답조교</button>
+      <button class="filter-tab" onclick="filterApp('업무조교',this)">업무조교</button>
+    </div>
+    <div id="applicant-list"></div>
+  </div>
+</div>
+
+<script>
+// ===================== Supabase 설정 =====================
+const SUPABASE_URL = 'https://iawrbhjyzxacteurukfa.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_AiHTjZGSf6HF4BqjSB42bg_aEMeV6yH';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ===================== 관리자 비밀번호 (여기서 변경 가능) =====================
+const ADMIN_PASSWORD = 'admin1234';
+
+// ===================== 상태 변수 =====================
+let currentType = '';
+let selectedDate = null;
+let selectedTime = null;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let allApplications = [];
+
+// ===================== 화면 전환 =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===================== 홈 =====================
+function selectType(type) {
+  currentType = type;
+  document.getElementById('form-type-badge').textContent = type;
+  document.getElementById('date-type-badge').textContent = type;
+  document.getElementById('time-type-badge').textContent = type;
+  showScreen('form');
+}
+
+// ===================== 폼 =====================
+function handleGender() {
+  const g = document.getElementById('f-gender').value;
+  document.getElementById('f-military').style.display = g === '남성' ? 'block' : 'none';
+}
+
+function addCareer() {
+  const list = document.getElementById('career-list');
+  const div = document.createElement('div');
+  div.className = 'career-item';
+  div.innerHTML = '<input type="text" placeholder="경력을 입력해주세요"><button class="career-del" onclick="removeCareer(this)">✕</button>';
+  list.appendChild(div);
+}
+
+function removeCareer(btn) {
+  const list = document.getElementById('career-list');
+  if (list.children.length > 1) btn.parentElement.remove();
+  else btn.previousElementSibling.value = '';
+}
+
+function goDate() {
+  renderCalendar();
+  showScreen('date');
+}
+
+// ===================== 달력 =====================
+const DAYS = ['일','월','화','수','목','금','토'];
+
+function renderCalendar() {
+  const title = document.getElementById('cal-title');
+  const grid = document.getElementById('cal-grid');
+  title.textContent = calYear + '년 ' + (calMonth + 1) + '월';
+  grid.innerHTML = '';
+
+  DAYS.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-day-name';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const prevDays = new Date(calYear, calMonth, 0).getDate();
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month';
+    el.textContent = prevDays - i;
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    const thisDate = new Date(calYear, calMonth, d);
+    if (thisDate < today) el.classList.add('past');
+    if (thisDate.getTime() === today.getTime()) el.classList.add('today');
+    if (selectedDate && selectedDate.y === calYear && selectedDate.m === calMonth && selectedDate.d === d) el.classList.add('selected');
+    el.textContent = d;
+    el.onclick = () => selectDay(d, el);
+    grid.appendChild(el);
+  }
+}
+
+function selectDay(d, el) {
+  document.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDate = { y: calYear, m: calMonth, d };
+  document.getElementById('selected-date-label').textContent =
+    calYear + '년 ' + (calMonth + 1) + '월 ' + d + '일 선택됨';
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+// ===================== 시간 =====================
+function goTime() {
+  if (!selectedDate) { alert('날짜를 선택해주세요.'); return; }
+  renderTimeGrid();
+  showScreen('time');
+}
+
+function renderTimeGrid() {
+  const amGrid = document.getElementById('am-grid');
+  const pmGrid = document.getElementById('pm-grid');
+  amGrid.innerHTML = '';
+  pmGrid.innerHTML = '';
+  ['09:00','09:30','10:00','10:30','11:00','11:30'].forEach(t => amGrid.appendChild(makeTimeBtn(t)));
+  ['12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'].forEach(t => pmGrid.appendChild(makeTimeBtn(t)));
+}
+
+function makeTimeBtn(t) {
+  const btn = document.createElement('button');
+  btn.className = 'time-btn' + (selectedTime === t ? ' selected' : '');
+  btn.textContent = t;
+  btn.onclick = () => {
+    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTime = t;
+  };
+  return btn;
+}
+
+// ===================== 제출 =====================
+async function submitApp() {
+  if (!selectedTime) { alert('시간을 선택해주세요.'); return; }
+
+  const careers = Array.from(document.querySelectorAll('#career-list .career-item input'))
+    .map(i => i.value.trim()).filter(v => v).join(' / ');
+  const gender = document.getElementById('f-gender').value;
+  const military = gender === '남성' ? document.getElementById('f-military').value : '';
+  const dateStr = selectedDate.y + '.' + String(selectedDate.m + 1).padStart(2,'0') + '.' + String(selectedDate.d).padStart(2,'0');
+
+  const data = {
+    type: currentType,
+    name: document.getElementById('f-name').value || '',
+    age: document.getElementById('f-age').value || '',
+    gender: gender + (military ? ' / ' + military : ''),
+    phone: document.getElementById('f-phone').value || '',
+    address: document.getElementById('f-address').value || '',
+    school: document.getElementById('f-school').value || '',
+    dept: document.getElementById('f-dept').value || '',
+    year: document.getElementById('f-year').value || '',
+    period: document.getElementById('f-period').value || '',
+    careers: careers,
+    date: dateStr,
+    time: selectedTime
+  };
+
+  const { error } = await supabase.from('applications').insert([data]);
+  if (error) {
+    alert('저장 중 오류가 발생했습니다: ' + error.message);
+    return;
+  }
+  showScreen('done');
+}
+
+// ===================== 초기화 =====================
+function resetAndHome() {
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-age').value = '';
+  document.getElementById('f-gender').value = '';
+  document.getElementById('f-military').value = '';
+  document.getElementById('f-military').style.display = 'none';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-address').value = '';
+  document.getElementById('f-school').value = '';
+  document.getElementById('f-dept').value = '';
+  document.getElementById('f-year').value = '';
+  document.getElementById('f-period').value = '';
+  document.getElementById('career-list').innerHTML = '<div class="career-item"><input type="text" placeholder="예: XX학원 수학 튜터 (2023.01~2023.06)"><button class="career-del" onclick="removeCareer(this)">✕</button></div>';
+  selectedDate = null;
+  selectedTime = null;
+  showScreen('home');
+}
+
+// ===================== 관리자 =====================
+function checkAdmin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === ADMIN_PASSWORD) {
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-error').textContent = '';
+    loadApplicants();
+    showScreen('admin');
+  } else {
+    document.getElementById('admin-error').textContent = '비밀번호가 올바르지 않습니다.';
+  }
+}
+
+async function loadApplicants() {
+  document.getElementById('applicant-list').innerHTML = '<div class="loading">불러오는 중...</div>';
+  const { data, error } = await supabase.from('applications').select('*').order('created_at', { ascending: false });
+  if (error) {
+    document.getElementById('applicant-list').innerHTML = '<div class="empty-state">데이터를 불러오지 못했습니다.</div>';
+    return;
+  }
+  allApplications = data || [];
+  renderApplicants('all');
+}
+
+function filterApp(type, btn) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderApplicants(type);
+}
+
+function renderApplicants(filter) {
+  const list = document.getElementById('applicant-list');
+  const filtered = filter === 'all' ? allApplications : allApplications.filter(a => a.type === filter);
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">📭 아직 지원자가 없습니다</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  filtered.forEach(app => {
+    const isQA = app.type === '질의응답조교';
+    const initials = (app.name || '?').slice(-2);
+    const card = document.createElement('div');
+    card.className = 'applicant-card';
+    card.innerHTML = `
+      <div class="applicant-card-header" onclick="toggleDetail(this)">
+        <div class="a-left">
+          <div class="avatar ${isQA ? 'avatar-qa' : 'avatar-work'}">${initials}</div>
+          <div>
+            <div class="a-name">${app.name || '(미입력)'}</div>
+            <div class="a-meta">${app.school || ''} ${app.dept || ''} ${app.year || ''} · ${app.date || ''} ${app.time || ''}</div>
+          </div>
+        </div>
+        <span class="a-badge ${isQA ? 'badge-qa' : 'badge-work'}">${app.type}</span>
+      </div>
+      <div class="applicant-detail">
+        <div class="detail-grid">
+          <div class="detail-item"><div class="dl">나이</div><div class="dv">${app.age || '-'}</div></div>
+          <div class="detail-item"><div class="dl">성별</div><div class="dv">${app.gender || '-'}</div></div>
+          <div class="detail-item"><div class="dl">전화번호</div><div class="dv">${app.phone || '-'}</div></div>
+          <div class="detail-item"><div class="dl">거주지</div><div class="dv">${app.address || '-'}</div></div>
+          <div class="detail-item"><div class="dl">근무가능기간</div><div class="dv">${app.period || '-'}</div></div>
+          <div class="detail-item"><div class="dl">면접 일정</div><div class="dv">${app.date || ''} ${app.time || ''}</div></div>
+          ${app.careers ? `<div class="detail-item detail-full"><div class="dl">경력</div><div class="dv">${app.careers}</div></div>` : ''}
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function toggleDetail(header) {
+  header.nextElementSibling.classList.toggle('open');
+}
+
+renderCalendar();
+</script>
+</body>
+</html>
