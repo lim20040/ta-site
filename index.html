@@ -208,39 +208,20 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 
     <div class="form-row">
       <div class="form-group">
-        <label>엑셀(Excel) 사용 경험</label>
+        <label>엑셀(Excel) 함수 활용 여부</label>
         <select id="f-excel">
           <option value="">선택</option>
-          <option value="상 (수식 및 피벗테이블 가능)">상 (수식 및 피벗테이블 가능)</option>
-          <option value="중 (기본 함수 및 데이터 정리 가능)">중 (기본 함수 및 데이터 정리 가능)</option>
-          <option value="하 (기본 입력만 가능)">하 (기본 입력만 가능)</option>
-          <option value="없음">없음</option>
+          <option value="가능 (함수 읽고 활용 가능)">가능 (함수 읽고 활용 가능)</option>
+          <option value="불가능 (기본 데이터 입력만 가능)">불가능 (기본 데이터 입력만 가능)</option>
         </select>
       </div>
       <div class="form-group">
-        <label>한글(HWP) 사용 경험</label>
+        <label>한글(HWP) 및 수식편집기 사용</label>
         <select id="f-hwp">
           <option value="">선택</option>
-          <option value="상 (문서 편집 및 단축키 능숙)">상 (문서 편집 및 단축키 능숙)</option>
-          <option value="중 (기본적인 문서 작성 가능)">중 (기본적인 문서 작성 가능)</option>
-          <option value="하 (기본 입력만 가능)">하 (기본 입력만 가능)</option>
-          <option value="없음">없음</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>자격증 유무</label>
-        <input type="text" id="f-license" placeholder="예: 컴퓨터활용능력 1급, 컴활 없음 등">
-      </div>
-      <div class="form-group">
-        <label>수식편집기 사용 경험</label>
-        <select id="f-formula">
-          <option value="">선택</option>
-          <option value="경험 많음 (수학 문제 타이핑 능숙)">경험 많음 (수학 문제 타이핑 능숙)</option>
-          <option value="조금 해봄 (사용법은 알고 있음)">조금 해봄 (사용법은 알고 있음)</option>
-          <option value="없음">없음</option>
+          <option value="능숙 (수식편집기 및 문서 편집 능숙)">능숙 (수식편집기 및 문서 편집 능숙)</option>
+          <option value="보통 (기본 문서 작성 및 간단한 수식 가능)">보통 (기본 문서 작성 및 간단한 수식 가능)</option>
+          <option value="기본 (수식편집 불가, 타이핑만 가능)">기본 (수식편집 불가, 타이핑만 가능)</option>
         </select>
       </div>
     </div>
@@ -374,7 +355,7 @@ let selectedDate = null;
 let selectedTime = null;
 let allApplications = [];
 
-// 날짜별 개별 시간을 저장할 구조 체계 { "2026-05-25": ["10:00", "11:00"], "2026-05-26": ["14:00"] }
+// 날짜별 개별 시간을 저장할 구조 체계
 let masterSchedule = {};
 
 function showScreen(id) {
@@ -519,8 +500,8 @@ async function submitApp() {
       careers: careers,
       excel_exp: document.getElementById('f-excel').value || '',
       hwp_exp: document.getElementById('f-hwp').value || '',
-      license_any: document.getElementById('f-license').value || '',
-      formula_exp: document.getElementById('f-formula').value || '',
+      license_any: '', // 더이상 화면에서 수집 안함 (DB 구조 유지를 위해 빈칸 전달)
+      formula_exp: '', // 더이상 화면에서 수집 안함 (DB 구조 유지를 위해 빈칸 전달)
       self_intro: document.getElementById('f-intro').value || '',
       date: selectedDate,
       time: selectedTime
@@ -535,8 +516,8 @@ async function submitApp() {
 }
 
 function resetAndHome() {
-  ['f-name','f-age','f-phone','f-address','f-school','f-dept','f-period','f-license','f-intro'].forEach(id => document.getElementById(id).value = '');
-  ['f-gender','f-year','f-excel','f-hwp','f-formula'].forEach(id => document.getElementById(id).value = '');
+  ['f-name','f-age','f-phone','f-address','f-school','f-dept','f-period','f-intro'].forEach(id => document.getElementById(id).value = '');
+  ['f-gender','f-year','f-excel','f-hwp'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-military').style.display = 'none';
   document.getElementById('career-list').innerHTML = '<div class="career-item"><input type="text" placeholder="예: xx학원 조교"><button class="career-del" onclick="removeCareer(this)">✕</button></div>';
   selectedDate = null; selectedTime = null;
@@ -715,10 +696,8 @@ function renderApplicants(filter) {
           <div class="detail-item"><div class="dl">근무가능기간</div><div class="dv">${app.period||'-'}</div></div>
           <div class="detail-item"><div class="dl">확정 면접일시</div><div class="dv" style="color:#1a56db;">${dateLabel} ${app.time||''}</div></div>
           
-          <div class="detail-item"><div class="dl">엑셀 실무 역량</div><div class="dv">${app.excel_exp||'-'}</div></div>
-          <div class="detail-item"><div class="dl">한글 편집 역량</div><div class="dv">${app.hwp_exp||'-'}</div></div>
-          <div class="detail-item"><div class="dl">수식 편집 경험</div><div class="dv">${app.formula_exp||'-'}</div></div>
-          <div class="detail-item"><div class="dl">보유 자격증</div><div class="dv">${app.license_any||'-'}</div></div>
+          <div class="detail-item"><div class="dl">엑셀 함수 활용 여부</div><div class="dv">${app.excel_exp||'-'}</div></div>
+          <div class="detail-item"><div class="dl">한글 및 수식편집기</div><div class="dv">${app.hwp_exp||'-'}</div></div>
           
           ${app.careers ? `<div class="detail-item detail-full"><div class="dl">과거 수행 경력</div><div class="dv">${app.careers}</div></div>` : ''}
           ${app.self_intro ? `<div class="detail-item detail-full" style="background:#fff; padding:8px; border-radius:6px; border:1px solid #eee; margin-top:5px;"><div class="dl" style="color:#111; font-weight:bold;">✨ 지원자 한줄 어필 및 자기소개</div><div class="dv" style="white-space:pre-wrap; font-size:13px; margin-top:4px;">${app.self_intro}</div></div>` : ''}
