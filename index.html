@@ -135,6 +135,11 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .detail-full { grid-column: 1 / -1; }
 .empty-state { text-align: center; padding: 4rem; color: #aaa; font-size: 14px; }
 .loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
+
+/* 추가된 삭제 버튼 스타일 */
+.delete-btn-wrap { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e5e5; text-align: right; }
+.btn-delete { padding: 6px 14px; font-size: 13px; background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.btn-delete:hover { background: #fee2e2; }
 </style>
 </head>
 <body>
@@ -631,7 +636,7 @@ async function saveSchedule() {
   btn.disabled = false;
 }
 
-// 지원자 목록
+// 지원자 목록 불러오기
 async function loadApplicants() {
   document.getElementById('applicant-list').innerHTML = '<div class="loading">불러오는 중...</div>';
   try {
@@ -647,12 +652,31 @@ async function loadApplicants() {
   }
 }
 
+// 지원자 삭제 함수 (새로 추가됨)
+async function deleteApplicant(id) {
+  if (!confirm('이 지원자를 정말 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다)')) return;
+
+  try {
+    const { error } = await db.from('applications').delete().eq('id', id);
+    if (error) {
+      alert('삭제 중 오류가 발생했습니다: ' + error.message);
+      return;
+    }
+    alert('성공적으로 삭제되었습니다.');
+    // 리스트 다시 불러오기
+    loadApplicants();
+  } catch (err) {
+    alert('삭제 중 알 수 없는 오류가 발생했습니다.');
+  }
+}
+
 function filterApp(type, btn) {
   document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   renderApplicants(type);
 }
 
+// 지원자 카드 그리기 (삭제 버튼 포함)
 function renderApplicants(filter) {
   const list = document.getElementById('applicant-list');
   const filtered = filter === 'all' ? allApplications : allApplications.filter(a => a.type === filter);
@@ -684,6 +708,9 @@ function renderApplicants(filter) {
           <div class="detail-item"><div class="dl">근무가능기간</div><div class="dv">${app.period||'-'}</div></div>
           <div class="detail-item"><div class="dl">면접 일정</div><div class="dv">${dateLabel} ${app.time||''}</div></div>
           ${app.careers ? `<div class="detail-item detail-full"><div class="dl">경력</div><div class="dv">${app.careers}</div></div>` : ''}
+        </div>
+        <div class="delete-btn-wrap">
+          <button class="btn-delete" onclick="deleteApplicant('${app.id}')">삭제하기</button>
         </div>
       </div>`;
     list.appendChild(card);
