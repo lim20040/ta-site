@@ -9,7 +9,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; }
 .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1.5rem; background: #fff; border-bottom: 1px solid #e5e5e5; position: sticky; top: 0; z-index: 10; }
-/* 로고에 마우스 올렸을 때 클릭 가능하다는 표시 추가 */
 .logo { font-size: 15px; font-weight: 600; color: #111; cursor: pointer; transition: opacity 0.2s; }
 .logo:hover { opacity: 0.7; }
 .admin-btn { font-size: 12px; color: #666; background: none; border: 1px solid #ddd; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
@@ -70,11 +69,14 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .time-btn.selected { background: #111; color: #fff; border-color: #111; font-weight: 600; }
 .time-btn.taken { background: #f5f5f5; color: #ccc; border-color: #eee; cursor: not-allowed; text-decoration: line-through; }
 
-/* 완료 */
+/* 완료 화면 특수 스타일 */
 .done-wrap { max-width: 400px; margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
 .done-icon { font-size: 56px; margin-bottom: 1.5rem; }
 .done-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.75rem; }
-.done-wrap p { font-size: 13px; color: #aaa; }
+.memo-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin: 1.5rem auto; text-align: left; }
+.memo-title { font-size: 13px; font-weight: 700; color: #1a56db; margin-bottom: 0.5rem; }
+.memo-datetime { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 0.25rem; }
+.memo-location { font-size: 14px; color: #555; }
 
 /* 관리자 패널 */
 .admin-login-wrap { max-width: 340px; margin: 5rem auto; padding: 2rem; background: #fff; border-radius: 16px; border: 1px solid #e5e5e5; }
@@ -290,7 +292,18 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   <div class="done-wrap">
     <div class="done-icon">✅</div>
     <h2>지원해주셔서 감사합니다.</h2>
-    <p style="color: #888; font-size: 13px;">문제가 있을 시 다시 연락드립니다.</p>
+    
+    <div class="memo-box">
+      <div class="memo-title">📌 내 면접 일정</div>
+      <div class="memo-datetime" id="done-datetime"></div>
+      <div class="memo-location">장소 : 영통시대원학원 5층</div>
+    </div>
+
+    <p style="color: #666; font-size: 13px; line-height: 1.5; margin-top: 1.5rem;">
+      면접 일정 변경 및 기타 문의는<br>
+      <strong>010-4663-8661</strong> 로 연락주시기 바랍니다.
+    </p>
+
     <div class="nav-btns" style="margin-top:2rem;max-width:200px;margin-left:auto;margin-right:auto">
       <button class="btn-next" onclick="resetAndHome()">처음으로</button>
     </div>
@@ -352,7 +365,6 @@ const ADMIN_PASSWORD = 'admin1234';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 세션 스토리지에서 이전 상태 불러오기 (새로고침 유지용)
 let currentType = sessionStorage.getItem('currentType') || '';
 let selectedDate = sessionStorage.getItem('selectedDate') || null;
 let selectedTime = sessionStorage.getItem('selectedTime') || null;
@@ -363,14 +375,12 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   window.scrollTo(0, 0);
-  
-  // 현재 보고 있는 화면을 브라우저 임시 기억 장치에 저장
   sessionStorage.setItem('currentScreen', id);
 }
 
 function selectType(type) {
   currentType = type;
-  sessionStorage.setItem('currentType', type); // 지원 유형 기억
+  sessionStorage.setItem('currentType', type);
   document.getElementById('form-type-badge').textContent = type;
   document.getElementById('date-type-badge').textContent = type;
   document.getElementById('time-type-badge').textContent = type;
@@ -396,7 +406,6 @@ function removeCareer(btn) {
   else btn.previousElementSibling.value = '';
 }
 
-// 날짜 리스트 표출
 async function goDate() {
   showScreen('date');
   const dateList = document.getElementById('date-list');
@@ -415,14 +424,14 @@ async function goDate() {
     dates.sort().forEach(d => {
       const el = document.createElement('div');
       el.className = 'date-option';
-      if (selectedDate === d) el.classList.add('selected'); // 새로고침 시 기존 선택 유지
+      if (selectedDate === d) el.classList.add('selected');
       
       el.textContent = formatDateKor(d);
       el.onclick = () => {
         document.querySelectorAll('.date-option').forEach(x => x.classList.remove('selected'));
         el.classList.add('selected');
         selectedDate = d;
-        sessionStorage.setItem('selectedDate', d); // 선택한 날짜 기억
+        sessionStorage.setItem('selectedDate', d);
       };
       dateList.appendChild(el);
     });
@@ -436,7 +445,6 @@ function formatDateKor(d) {
   return parts[0] + '년 ' + parseInt(parts[1]) + '월 ' + parseInt(parts[2]) + '일';
 }
 
-// 시간 리스트 표출 (선착순 차단 반영)
 async function goTime() {
   if (!selectedDate) { alert('날짜를 선택해주세요.'); showScreen('date'); return; }
   showScreen('time');
@@ -463,12 +471,12 @@ async function goTime() {
         btn.classList.add('taken');
         btn.disabled = true;
       } else {
-        if (selectedTime === t) btn.classList.add('selected'); // 새로고침 시 기존 선택 유지
+        if (selectedTime === t) btn.classList.add('selected');
         btn.onclick = () => {
           document.querySelectorAll('.time-btn:not(.taken)').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
           selectedTime = t;
-          sessionStorage.setItem('selectedTime', t); // 선택한 시간 기억
+          sessionStorage.setItem('selectedTime', t);
         };
       }
       grid.appendChild(btn);
@@ -478,7 +486,6 @@ async function goTime() {
   }
 }
 
-// 최종 지원서 제출
 async function submitApp() {
   if (!selectedTime) { alert('시간을 선택해주세요.'); return; }
 
@@ -509,8 +516,8 @@ async function submitApp() {
       careers: careers,
       excel_exp: document.getElementById('f-excel').value || '',
       hwp_exp: document.getElementById('f-hwp').value || '',
-      license_any: '', // DB 컬럼 유지를 위해 빈 값 전송
-      formula_exp: '', // DB 컬럼 유지를 위해 빈 값 전송
+      license_any: '',
+      formula_exp: '',
       self_intro: document.getElementById('f-intro').value || '',
       date: selectedDate,
       time: selectedTime
@@ -519,7 +526,9 @@ async function submitApp() {
     const { error } = await db.from('applications').insert([data]);
     if (error) { alert('저장 실패: ' + error.message); return; }
     
-    // 제출 성공 시 임시 기억 장치 비우기
+    // 제출 성공 시 메모장에 표시될 날짜와 시간 업데이트
+    document.getElementById('done-datetime').textContent = `${formatDateKor(selectedDate)} ${selectedTime}`;
+
     sessionStorage.removeItem('currentType');
     sessionStorage.removeItem('selectedDate');
     sessionStorage.removeItem('selectedTime');
@@ -530,14 +539,12 @@ async function submitApp() {
   }
 }
 
-// 왼쪽 상단 로고 클릭 및 처음으로 버튼 동작
 function resetAndHome() {
   ['f-name','f-age','f-phone','f-address','f-school','f-dept','f-period','f-intro'].forEach(id => document.getElementById(id).value = '');
   ['f-gender','f-year','f-excel','f-hwp'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-military').style.display = 'none';
   document.getElementById('career-list').innerHTML = '<div class="career-item"><input type="text" placeholder="예: xx학원 조교"><button class="career-del" onclick="removeCareer(this)">✕</button></div>';
   
-  // 데이터 및 임시 기억 완전 초기화
   currentType = '';
   selectedDate = null;
   selectedTime = null;
@@ -549,13 +556,12 @@ function resetAndHome() {
   showScreen('home');
 }
 
-// 관리자 진입 인증
 function checkAdmin() {
   const pw = document.getElementById('admin-pw').value;
   if (pw === ADMIN_PASSWORD) {
     document.getElementById('admin-pw').value = '';
     document.getElementById('admin-error').textContent = '';
-    sessionStorage.setItem('isAdminLoggedIn', 'true'); // 관리자 로그인 상태 기억
+    sessionStorage.setItem('isAdminLoggedIn', 'true');
     loadApplicants();
     loadScheduleForAdmin();
     showScreen('admin');
@@ -564,7 +570,6 @@ function checkAdmin() {
   }
 }
 
-// 관리자 로그아웃
 function logoutAdmin() {
   sessionStorage.removeItem('isAdminLoggedIn');
   resetAndHome();
@@ -575,10 +580,9 @@ function switchAdminTab(tab, btn) {
   btn.classList.add('active');
   document.getElementById('tab-applicants').style.display = tab === 'applicants' ? 'block' : 'none';
   document.getElementById('tab-schedule').style.display = tab === 'schedule' ? 'block' : 'none';
-  sessionStorage.setItem('adminTab', tab); // 탭 상태 기억
+  sessionStorage.setItem('adminTab', tab);
 }
 
-/* 관리자 시스템 - 날짜별 개별 시간 설정 설계 로직 */
 async function loadScheduleForAdmin() {
   try {
     const { data } = await db.from('schedule').select('*').eq('key', 'master').single();
@@ -672,7 +676,6 @@ async function saveSchedule() {
   btn.disabled = false;
 }
 
-// 지원자 현황 조회
 async function loadApplicants() {
   document.getElementById('applicant-list').innerHTML = '<div class="loading">지원 정보 수집 중...</div>';
   try {
@@ -746,31 +749,26 @@ function toggleDetail(header) {
   header.nextElementSibling.classList.toggle('open');
 }
 
-// 🚀 [핵심 추가] 새로고침(F5) 시 현재 화면과 최신 DB 데이터를 유지/복원하는 로직
 window.addEventListener('DOMContentLoaded', () => {
   const savedScreen = sessionStorage.getItem('currentScreen') || 'home';
   
-  // 배지 텍스트 복원 (질의응답조교 / 업무조교)
   if (currentType) {
     document.getElementById('form-type-badge').textContent = currentType;
     document.getElementById('date-type-badge').textContent = currentType;
     document.getElementById('time-type-badge').textContent = currentType;
   }
 
-  // 관리자 페이지에서 새로고침 했을 경우 (로그인 유지 확인)
   if (savedScreen === 'admin' && sessionStorage.getItem('isAdminLoggedIn') === 'true') {
     loadApplicants();
     loadScheduleForAdmin();
     showScreen('admin');
     
-    // 이전에 관리자 페이지의 어떤 탭(지원자 목록 vs 일정 설정)을 보고 있었는지 복원
     const savedTab = sessionStorage.getItem('adminTab');
     if (savedTab === 'schedule') {
       const tabBtn = document.querySelectorAll('.admin-tab')[1];
       switchAdminTab('schedule', tabBtn);
     }
   } 
-  // 일반 지원자가 각 단계에서 새로고침 했을 경우 (최신 DB 리로드)
   else if (savedScreen === 'date') {
     goDate();
   } else if (savedScreen === 'time') {
