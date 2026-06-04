@@ -101,10 +101,14 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .admin-time-chip { display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #eee; border-radius: 6px; font-size: 12px; }
 .admin-time-chip button { background: none; border: none; color: #999; cursor: pointer; font-size: 12px; }
 .admin-time-chip button:hover { color: #f00; }
-.time-inputs { display: flex; gap: 4px; margin-top: 6px; }
-.time-inputs input { width: 100px; padding: 6px; font-size: 12px; border: 1px solid #ddd; border-radius: 6px; }
-.btn-mini { padding: 4px 10px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.time-inputs { display: flex; gap: 4px; margin-top: 6px; align-items: center; }
+.time-inputs input { width: 140px; padding: 7px 10px; font-size: 13px; border: 1px solid #ddd; border-radius: 6px; outline: none; }
+.time-inputs input:focus { border-color: #111; }
+.btn-mini { padding: 7px 12px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .btn-del-date { padding: 4px 10px; background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.save-schedule-btn { width: 100%; padding: 12px; background: #111; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; font-family: inherit; margin-top: 1rem; }
+.save-schedule-btn:hover { background: #333; }
+.save-msg { text-align: center; font-size: 13px; color: #16a34a; margin-top: 0.5rem; min-height: 18px; }
 
 /* 관리자 - 지원자 목록 */
 .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
@@ -142,6 +146,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   <button class="admin-btn" onclick="showScreen('admin-login')">🔒 관리자</button>
 </div>
 
+<!-- 홈 -->
 <div class="screen active" id="screen-home">
   <div class="home-wrap">
     <h1>조교 지원</h1>
@@ -159,6 +164,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 정보 입력 -->
 <div class="screen" id="screen-form">
   <div class="form-wrap">
     <div class="progress-bar">
@@ -253,6 +259,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 면접 날짜 선택 -->
 <div class="screen" id="screen-date">
   <div class="cal-wrap">
     <div class="progress-bar">
@@ -270,6 +277,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 면접 시간 선택 -->
 <div class="screen" id="screen-time">
   <div class="time-wrap">
     <div class="progress-bar">
@@ -288,6 +296,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 완료 화면 -->
 <div class="screen" id="screen-done">
   <div class="done-wrap">
     <div class="done-icon">✅</div>
@@ -310,6 +319,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 관리자 로그인 -->
 <div class="screen" id="screen-admin-login">
   <div class="admin-login-wrap">
     <h2>🔒 관리자 로그인</h2>
@@ -322,6 +332,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
   </div>
 </div>
 
+<!-- 관리자 패널 -->
 <div class="screen" id="screen-admin">
   <div class="admin-wrap">
     <div class="admin-header">
@@ -333,6 +344,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       <button class="admin-tab" onclick="switchAdminTab('schedule', this)">일정 설정</button>
     </div>
 
+    <!-- 지원자 목록 탭 -->
     <div id="tab-applicants">
       <div class="filter-tabs">
         <button class="filter-tab active" onclick="filterApp('all',this)">전체</button>
@@ -342,6 +354,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       <div id="applicant-list"></div>
     </div>
 
+    <!-- 일정 설정 탭 -->
     <div id="tab-schedule" style="display:none">
       <div class="schedule-section">
         <h3>📅 면접 날짜 및 시간 추가</h3>
@@ -350,7 +363,8 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
           <button class="btn-add" onclick="addAdminDate()">날짜 추가</button>
         </div>
         <div id="admin-schedule-list" style="margin-top:1rem;">
-          </div>
+          <!-- 날짜별 개별 시간 설정창이 생성되는 공간 -->
+        </div>
         <button class="save-schedule-btn" onclick="saveSchedule()">전체 일정 저장하기</button>
         <div class="save-msg" id="save-msg"></div>
       </div>
@@ -413,6 +427,8 @@ async function goDate() {
   
   try {
     const { data, error } = await db.from('schedule').select('*').eq('key', 'master').single();
+    if (error && error.code !== 'PGRST116') { console.error('DB오류:', error.message); }
+    
     masterSchedule = (data && data.value) ? JSON.parse(data.value) : {};
 
     const dates = Object.keys(masterSchedule).filter(d => masterSchedule[d].length > 0);
@@ -524,9 +540,12 @@ async function submitApp() {
     };
 
     const { error } = await db.from('applications').insert([data]);
-    if (error) { alert('저장 실패: ' + error.message); return; }
+    if (error) { 
+      alert('저장 실패! 에러: ' + error.message); 
+      return; 
+    }
     
-    // 제출 성공 시 메모장에 표시될 날짜와 시간 업데이트
+    // 메모장에 날짜 시간 띄우기
     document.getElementById('done-datetime').textContent = `${formatDateKor(selectedDate)} ${selectedTime}`;
 
     sessionStorage.removeItem('currentType');
@@ -623,7 +642,7 @@ function renderAdminScheduleView() {
       </div>
       <div class="admin-time-chips">${chipsHtml || '<span style="color:#bbb; font-size:12px;">등록된 타임 없음</span>'}</div>
       <div class="time-inputs">
-        <input type="time" id="time-input-${d}">
+        <input type="text" id="time-input-${d}" placeholder="예: 1400 또는 14:00" autocomplete="off" onkeydown="if(event.key==='Enter')addAdminTime('${d}')">
         <button class="btn-mini" onclick="addAdminTime('${d}')">⏱️ 시간 추가</button>
       </div>
     `;
@@ -648,11 +667,22 @@ function removeAdminDate(d) {
 }
 
 function addAdminTime(d) {
-  const val = document.getElementById(`time-input-${d}`).value;
-  if (!val) { alert('시간을 지정해 주세요.'); return; }
+  let val = document.getElementById(`time-input-${d}`).value.trim();
+  if (!val) { alert('시간을 입력해 주세요.'); return; }
+  
+  if (/^\d{3,4}$/.test(val)) {
+    val = val.padStart(4, '0');
+    val = val.substring(0, 2) + ':' + val.substring(2, 4);
+  }
+
   if (masterSchedule[d].includes(val)) { alert('이미 등록된 시간대입니다.'); return; }
   masterSchedule[d].push(val);
   renderAdminScheduleView();
+  
+  setTimeout(() => {
+    const inputField = document.getElementById(`time-input-${d}`);
+    if(inputField) inputField.focus();
+  }, 10);
 }
 
 function removeAdminTime(d, t) {
@@ -666,9 +696,13 @@ async function saveSchedule() {
   btn.disabled = true;
 
   try {
-    await db.from('schedule').upsert([{ key: 'master', value: JSON.stringify(masterSchedule) }], { onConflict: 'key' });
-    document.getElementById('save-msg').textContent = '✓ 전체 날짜별 시간 세팅이 DB에 정상 적용되었습니다!';
-    setTimeout(() => document.getElementById('save-msg').textContent = '', 3000);
+    const { error } = await db.from('schedule').upsert([{ key: 'master', value: JSON.stringify(masterSchedule) }]);
+    if (error) {
+      alert('DB 저장 오류! 에러 원인: ' + error.message);
+    } else {
+      document.getElementById('save-msg').textContent = '✓ 전체 날짜별 시간 세팅이 DB에 정상 적용되었습니다!';
+      setTimeout(() => document.getElementById('save-msg').textContent = '', 3000);
+    }
   } catch (err) {
     alert('저장 실패: ' + err.message);
   }
@@ -689,7 +723,11 @@ async function loadApplicants() {
 
 async function deleteApplicant(id) {
   if (!confirm('해당 지원 정보를 데이터베이스에서 영구 삭제하시겠습니까?')) return;
-  await db.from('applications').delete().eq('id', id);
+  const { error } = await db.from('applications').delete().eq('id', id);
+  if (error) {
+    alert('삭제 실패: ' + error.message);
+    return;
+  }
   loadApplicants();
 }
 
