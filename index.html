@@ -101,10 +101,14 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .admin-time-chip { display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #eee; border-radius: 6px; font-size: 12px; }
 .admin-time-chip button { background: none; border: none; color: #999; cursor: pointer; font-size: 12px; }
 .admin-time-chip button:hover { color: #f00; }
-.time-inputs { display: flex; gap: 4px; margin-top: 6px; }
-.time-inputs input { width: 100px; padding: 6px; font-size: 12px; border: 1px solid #ddd; border-radius: 6px; }
-.btn-mini { padding: 4px 10px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.time-inputs { display: flex; gap: 4px; margin-top: 6px; align-items: center; }
+.time-inputs input { width: 140px; padding: 7px 10px; font-size: 13px; border: 1px solid #ddd; border-radius: 6px; outline: none; }
+.time-inputs input:focus { border-color: #111; }
+.btn-mini { padding: 7px 12px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .btn-del-date { padding: 4px 10px; background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.save-schedule-btn { width: 100%; padding: 12px; background: #111; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; font-family: inherit; margin-top: 1rem; }
+.save-schedule-btn:hover { background: #333; }
+.save-msg { text-align: center; font-size: 13px; color: #16a34a; margin-top: 0.5rem; min-height: 18px; }
 
 /* 관리자 - 지원자 목록 */
 .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
@@ -133,16 +137,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .delete-btn-wrap { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e5e5; text-align: right; }
 .btn-delete { padding: 6px 14px; font-size: 13px; background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; font-family: inherit; }
 .btn-delete:hover { background: #fee2e2; }
-
-.date-add-row { display: flex; gap: 8px; align-items: center; }
-.date-add-row input { flex: 1; padding: 9px 10px; font-size: 13px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
-.date-add-row input:focus { outline: none; border-color: #111; }
-.btn-add { padding: 9px 14px; background: #111; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-family: inherit; }
-.btn-add:hover { background: #333; }
-.save-schedule-btn { width: 100%; margin-top: 1rem; padding: 12px; border-radius: 10px; border: none; background: #111; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
-.save-schedule-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.save-msg { min-height: 20px; margin-top: 0.75rem; font-size: 13px; color: #16a34a; text-align: center; font-weight: 600; }
-
 </style>
 </head>
 <body>
@@ -356,7 +350,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
       <div class="schedule-section">
         <h3>📅 면접 날짜 및 시간 추가</h3>
         <div class="date-add-row" style="margin-top:1rem;">
-          <input type="text" id="admin-date-input" placeholder="예: 2026-06-04" maxlength="10" onkeydown="if(event.key==='Enter') addAdminDate()">
+          <input type="date" id="admin-date-input">
           <button class="btn-add" onclick="addAdminDate()">날짜 추가</button>
         </div>
         <div id="admin-schedule-list" style="margin-top:1rem;">
@@ -374,32 +368,6 @@ const SUPABASE_KEY = 'sb_publishable_AiHTjZGSf6HF4BqjSB42bg_aEMeV6yH';
 const ADMIN_PASSWORD = 'admin1234';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-
-function parseDbSchedule(value) {
-  if (!value) return {};
-  if (typeof value === 'string') {
-    try { return JSON.parse(value); }
-    catch (e) { console.error('일정 JSON 파싱 실패:', e, value); return {}; }
-  }
-  return value;
-}
-
-function isValidDateString(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const d = new Date(value + 'T00:00:00');
-  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
-}
-
-function normalizeTimeString(value) {
-  const raw = value.trim();
-  const m = raw.match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return null;
-  const h = Number(m[1]);
-  const min = Number(m[2]);
-  if (h < 0 || h > 23 || min < 0 || min > 59) return null;
-  return String(h).padStart(2, '0') + ':' + String(min).padStart(2, '0');
-}
 
 let currentType = sessionStorage.getItem('currentType') || '';
 let selectedDate = sessionStorage.getItem('selectedDate') || null;
@@ -448,21 +416,12 @@ async function goDate() {
   dateList.innerHTML = '<div class="loading">날짜 불러오는 중...</div>';
   
   try {
-    const { data, error } = await db
-      .from('schedule')
-      .select('*')
-      .eq('key', 'master')
-      .maybeSingle();
+    const { data, error } = await db.from('schedule').select('*').eq('key', 'master').single();
+    if (error && error.code !== 'PGRST116') { console.error('DB오류:', error.message); }
+    
+    masterSchedule = (data && data.value) ? JSON.parse(data.value) : {};
 
-    if (error) {
-      console.error('일정 조회 실패:', error);
-      dateList.innerHTML = '<div class="no-dates">일정 조회 실패: ' + error.message + '</div>';
-      return;
-    }
-
-    masterSchedule = parseDbSchedule(data?.value);
-
-    const dates = Object.keys(masterSchedule).filter(d => Array.isArray(masterSchedule[d]) && masterSchedule[d].length > 0);
+    const dates = Object.keys(masterSchedule).filter(d => masterSchedule[d].length > 0);
     if (dates.length === 0) {
       dateList.innerHTML = '<div class="no-dates">📭 면접 일정이 존재하지 않습니다.</div>';
       return;
@@ -478,15 +437,12 @@ async function goDate() {
         document.querySelectorAll('.date-option').forEach(x => x.classList.remove('selected'));
         el.classList.add('selected');
         selectedDate = d;
-        selectedTime = null;
         sessionStorage.setItem('selectedDate', d);
-        sessionStorage.removeItem('selectedTime');
       };
       dateList.appendChild(el);
     });
   } catch (err) {
-    console.error(err);
-    dateList.innerHTML = '<div class="no-dates">데이터베이스 연결 실패: ' + err.message + '</div>';
+    dateList.innerHTML = '<div class="no-dates">데이터베이스 연결 실패</div>';
   }
 }
 
@@ -574,9 +530,12 @@ async function submitApp() {
     };
 
     const { error } = await db.from('applications').insert([data]);
-    if (error) { alert('저장 실패: ' + error.message); return; }
+    if (error) { 
+      alert('저장 실패! 에러: ' + error.message); 
+      return; 
+    }
     
-    // 제출 성공 시 메모장에 표시될 날짜와 시간 업데이트
+    // 메모장에 날짜 시간 띄우기
     document.getElementById('done-datetime').textContent = `${formatDateKor(selectedDate)} ${selectedTime}`;
 
     sessionStorage.removeItem('currentType');
@@ -635,25 +594,11 @@ function switchAdminTab(tab, btn) {
 
 async function loadScheduleForAdmin() {
   try {
-    const { data, error } = await db
-      .from('schedule')
-      .select('*')
-      .eq('key', 'master')
-      .maybeSingle();
-
-    if (error) {
-      console.error('관리자 일정 조회 실패:', error);
-      masterSchedule = {};
-      renderAdminScheduleView();
-      return;
-    }
-
-    masterSchedule = parseDbSchedule(data?.value);
+    const { data } = await db.from('schedule').select('*').eq('key', 'master').single();
+    masterSchedule = (data && data.value) ? JSON.parse(data.value) : {};
     renderAdminScheduleView();
   } catch (err) {
-    console.error(err);
     masterSchedule = {};
-    renderAdminScheduleView();
   }
 }
 
@@ -687,7 +632,7 @@ function renderAdminScheduleView() {
       </div>
       <div class="admin-time-chips">${chipsHtml || '<span style="color:#bbb; font-size:12px;">등록된 타임 없음</span>'}</div>
       <div class="time-inputs">
-        <input type="text" id="time-input-${d}" placeholder="예: 14:30" maxlength="5" onkeydown="if(event.key==='Enter') addAdminTime('${d}')">
+        <input type="text" id="time-input-${d}" placeholder="예: 1400 또는 14:00" autocomplete="off" onkeydown="if(event.key==='Enter')addAdminTime('${d}')">
         <button class="btn-mini" onclick="addAdminTime('${d}')">⏱️ 시간 추가</button>
       </div>
     `;
@@ -696,16 +641,12 @@ function renderAdminScheduleView() {
 }
 
 function addAdminDate() {
-  const input = document.getElementById('admin-date-input');
-  const val = input.value.trim();
-
-  if (!val) { alert('날짜를 입력해 주세요.'); return; }
-  if (!isValidDateString(val)) { alert('날짜는 2026-06-04 형식으로 입력해 주세요.'); return; }
+  const val = document.getElementById('admin-date-input').value;
+  if (!val) { alert('날짜를 고르세요.'); return; }
   if (masterSchedule[val]) { alert('이미 목록에 존재하는 날짜입니다.'); return; }
-
   masterSchedule[val] = [];
   renderAdminScheduleView();
-  input.value = '';
+  document.getElementById('admin-date-input').value = '';
 }
 
 function removeAdminDate(d) {
@@ -716,24 +657,22 @@ function removeAdminDate(d) {
 }
 
 function addAdminTime(d) {
-  const input = document.getElementById(`time-input-${d}`);
-  const val = normalizeTimeString(input.value);
-
-  if (!val) {
-    alert('시간은 14:30 형식으로 입력해 주세요.');
-    return;
+  let val = document.getElementById(`time-input-${d}`).value.trim();
+  if (!val) { alert('시간을 입력해 주세요.'); return; }
+  
+  if (/^\d{3,4}$/.test(val)) {
+    val = val.padStart(4, '0');
+    val = val.substring(0, 2) + ':' + val.substring(2, 4);
   }
 
-  if (!Array.isArray(masterSchedule[d])) masterSchedule[d] = [];
-
-  if (masterSchedule[d].includes(val)) {
-    alert('이미 등록된 시간대입니다.');
-    return;
-  }
-
+  if (masterSchedule[d].includes(val)) { alert('이미 등록된 시간대입니다.'); return; }
   masterSchedule[d].push(val);
-  masterSchedule[d].sort();
   renderAdminScheduleView();
+  
+  setTimeout(() => {
+    const inputField = document.getElementById(`time-input-${d}`);
+    if(inputField) inputField.focus();
+  }, 10);
 }
 
 function removeAdminTime(d, t) {
@@ -741,54 +680,30 @@ function removeAdminTime(d, t) {
   renderAdminScheduleView();
 }
 
+// 🚀 DB 충돌 방지용 onConflict 옵션 복구 완료!
 async function saveSchedule() {
   const btn = document.querySelector('.save-schedule-btn');
-  const saveMsg = document.getElementById('save-msg');
-
   btn.textContent = '데이터 저장 중...';
   btn.disabled = true;
-  saveMsg.textContent = '';
-  saveMsg.style.color = '#16a34a';
 
   try {
-    const cleanedSchedule = {};
-    Object.keys(masterSchedule).sort().forEach(date => {
-      if (!isValidDateString(date)) return;
-      const times = Array.isArray(masterSchedule[date]) ? masterSchedule[date] : [];
-      cleanedSchedule[date] = [...new Set(times.map(normalizeTimeString).filter(Boolean))].sort();
-    });
-
-    masterSchedule = cleanedSchedule;
-
-    const { data, error } = await db
-      .from('schedule')
-      .upsert(
-        [{ key: 'master', value: JSON.stringify(masterSchedule) }],
-        { onConflict: 'key' }
-      )
-      .select();
-
+    const { error } = await db.from('schedule').upsert(
+      { key: 'master', value: JSON.stringify(masterSchedule) }, 
+      { onConflict: 'key' }
+    );
+    
     if (error) {
-      console.error('일정 저장 실패:', error);
-      saveMsg.style.color = '#ef4444';
-      saveMsg.textContent = '저장 실패: ' + error.message;
-      alert('저장 실패: ' + error.message);
-      return;
+      alert('DB 저장 오류! 에러 원인: ' + error.message);
+    } else {
+      document.getElementById('save-msg').textContent = '✓ 전체 날짜별 시간 세팅이 DB에 정상 적용되었습니다!';
+      setTimeout(() => document.getElementById('save-msg').textContent = '', 3000);
     }
-
-    console.log('저장된 일정:', data);
-    renderAdminScheduleView();
-    saveMsg.textContent = '✓ 전체 날짜별 시간 세팅이 DB에 정상 적용되었습니다!';
-    setTimeout(() => saveMsg.textContent = '', 3000);
   } catch (err) {
-    console.error(err);
-    saveMsg.style.color = '#ef4444';
-    saveMsg.textContent = '오류 발생: ' + err.message;
-    alert('오류 발생: ' + err.message);
-  } finally {
-    btn.textContent = '전체 일정 저장하기';
-    btn.disabled = false;
+    alert('저장 실패: ' + err.message);
   }
+  
+  btn.textContent = '전체 일정 저장하기';
+  btn.disabled = false;
 }
 
 async function loadApplicants() {
@@ -804,7 +719,11 @@ async function loadApplicants() {
 
 async function deleteApplicant(id) {
   if (!confirm('해당 지원 정보를 데이터베이스에서 영구 삭제하시겠습니까?')) return;
-  await db.from('applications').delete().eq('id', id);
+  const { error } = await db.from('applications').delete().eq('id', id);
+  if (error) {
+    alert('삭제 실패: ' + error.message);
+    return;
+  }
   loadApplicants();
 }
 
