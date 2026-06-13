@@ -37,7 +37,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .form-title-note { font-size: 12px; color: #aaa; }
 .form-group { margin-bottom: 1.25rem; }
 .form-group label { font-size: 13px; color: #555; display: block; margin-bottom: 6px; font-weight: 600; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 10px; background: #fff; color: #111; outline: none; font-family: inherit; }
+.form-group input[type="text"], .form-group input[type="number"], .form-group input[type="tel"], .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 10px; background: #fff; color: #111; outline: none; font-family: inherit; }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #111; }
 .form-group textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
@@ -55,6 +55,10 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .btn-prev:hover { background: #f5f5f5; }
 .btn-next:hover { background: #333; }
 
+/* 사진 업로드 인풋 스타일 */
+.file-upload-wrapper { border: 1px solid #ddd; border-radius: 10px; padding: 10px 12px; background: #fff; display: flex; align-items: center; }
+.file-upload-wrapper input[type="file"] { font-size: 13px; }
+
 /* 날짜 및 시간 */
 .cal-wrap { max-width: 480px; margin: 0 auto; padding: 2rem 1.5rem; }
 .date-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
@@ -69,7 +73,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .time-btn.selected { background: #111; color: #fff; border-color: #111; font-weight: 600; }
 .time-btn.taken { background: #f5f5f5; color: #ccc; border-color: #eee; cursor: not-allowed; text-decoration: line-through; }
 
-/* 완료 화면 특수 스타일 */
+/* 완료 화면 */
 .done-wrap { max-width: 400px; margin: 0 auto; padding: 5rem 1.5rem; text-align: center; }
 .done-icon { font-size: 56px; margin-bottom: 1.5rem; }
 .done-wrap h2 { font-size: 22px; font-weight: 700; margin-bottom: 0.75rem; }
@@ -106,9 +110,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
 .time-inputs input:focus { border-color: #111; }
 .btn-mini { padding: 7px 12px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
 .btn-del-date { padding: 4px 10px; background: #fef2f2; color: #ef4444; border: 1px solid #fca5a5; border-radius: 6px; cursor: pointer; font-size: 12px; }
-.save-schedule-btn { width: 100%; padding: 12px; background: #111; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; font-family: inherit; margin-top: 1rem; }
-.save-schedule-btn:hover { background: #333; }
-.save-msg { text-align: center; font-size: 13px; color: #16a34a; margin-top: 0.5rem; min-height: 18px; }
 
 /* 관리자 - 지원자 목록 */
 .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
@@ -212,6 +213,14 @@ body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; backgrou
         </select>
       </div>
       <div class="form-group"><label>근무가능기간</label><input type="text" id="f-period" placeholder="6개월 이상"></div>
+    </div>
+
+    <div class="form-group">
+      <label>학생증 첨부 <span style="font-size:12px; color:#888; font-weight:normal;">(얼굴은 가려도 됩니다.)</span></label>
+      <div class="file-upload-wrapper">
+        <input type="file" id="f-idcard" accept="image/*" onchange="handleIdPhotoUpload(event)">
+      </div>
+      <img id="idcard-preview" style="display:none; max-width:200px; margin-top:10px; border-radius:8px; border:1px solid #ddd;">
     </div>
 
     <div class="form-row">
@@ -374,6 +383,7 @@ let selectedDate = sessionStorage.getItem('selectedDate') || null;
 let selectedTime = sessionStorage.getItem('selectedTime') || null;
 let allApplications = [];
 let masterSchedule = {};
+let studentIdBase64 = ''; // 사진 데이터를 텍스트로 보관할 변수
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -408,6 +418,57 @@ function removeCareer(btn) {
   const list = document.getElementById('career-list');
   if (list.children.length > 1) btn.parentElement.remove();
   else btn.previousElementSibling.value = '';
+}
+
+// 📸 학생증 업로드 및 용량 압축 처리 함수
+function handleIdPhotoUpload(event) {
+  const file = event.target.files[0];
+  const preview = document.getElementById('idcard-preview');
+  
+  if (!file) {
+    studentIdBase64 = '';
+    preview.style.display = 'none';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // 이미지 용량을 줄이기 위해 Canvas 사용
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      const MAX_SIZE = 800; // 최대 가로세로 800px로 축소
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height *= MAX_SIZE / width;
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width *= MAX_SIZE / height;
+          height = MAX_SIZE;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // 압축된 이미지를 텍스트 데이터(Base64)로 변환
+      studentIdBase64 = canvas.toDataURL('image/jpeg', 0.6);
+      
+      // 미리보기 화면에 표시
+      preview.src = studentIdBase64;
+      preview.style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 async function goDate() {
@@ -522,9 +583,8 @@ async function submitApp() {
       careers: careers,
       excel_exp: document.getElementById('f-excel').value || '',
       hwp_exp: document.getElementById('f-hwp').value || '',
-      license_any: '',
-      formula_exp: '',
       self_intro: document.getElementById('f-intro').value || '',
+      id_photo: studentIdBase64, // 추가된 학생증 데이터
       date: selectedDate,
       time: selectedTime
     };
@@ -549,10 +609,17 @@ async function submitApp() {
 }
 
 function resetAndHome() {
-  ['f-name','f-age','f-phone','f-address','f-school','f-dept','f-period','f-intro'].forEach(id => document.getElementById(id).value = '');
+  ['f-name','f-age','f-phone','f-address','f-school','f-dept','f-period','f-intro','f-idcard'].forEach(id => {
+    if(document.getElementById(id)) document.getElementById(id).value = '';
+  });
   ['f-gender','f-year','f-excel','f-hwp'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-military').style.display = 'none';
   document.getElementById('career-list').innerHTML = '<div class="career-item"><input type="text" placeholder="예: xx학원 조교"><button class="career-del" onclick="removeCareer(this)">✕</button></div>';
+  
+  // 사진 데이터 초기화
+  document.getElementById('idcard-preview').style.display = 'none';
+  document.getElementById('idcard-preview').src = '';
+  studentIdBase64 = '';
   
   currentType = '';
   selectedDate = null;
@@ -680,7 +747,6 @@ function removeAdminTime(d, t) {
   renderAdminScheduleView();
 }
 
-// 🚀 DB 충돌 방지용 onConflict 옵션 복구 완료!
 async function saveSchedule() {
   const btn = document.querySelector('.save-schedule-btn');
   btn.textContent = '데이터 저장 중...';
@@ -745,6 +811,12 @@ function renderApplicants(filter) {
     const dateLabel = app.date ? formatDateKor(app.date) : '';
     const card = document.createElement('div');
     card.className = 'applicant-card';
+    
+    // 사진이 있는 경우 화면에 렌더링될 HTML 코드를 생성합니다.
+    const photoHtml = app.id_photo 
+      ? `<div class="detail-item detail-full"><div class="dl">학생증 사진</div><div class="dv" style="margin-top:8px;"><img src="${app.id_photo}" style="max-width:100%; border-radius:8px; border:1px solid #e5e5e5;"></div></div>`
+      : `<div class="detail-item detail-full"><div class="dl">학생증 사진</div><div class="dv" style="color:#aaa;">미첨부</div></div>`;
+
     card.innerHTML = `
       <div class="applicant-card-header" onclick="toggleDetail(this)">
         <div class="a-left">
@@ -770,6 +842,8 @@ function renderApplicants(filter) {
           
           ${app.careers ? `<div class="detail-item detail-full"><div class="dl">과거 수행 경력</div><div class="dv">${app.careers}</div></div>` : ''}
           ${app.self_intro ? `<div class="detail-item detail-full" style="background:#fff; padding:8px; border-radius:6px; border:1px solid #eee; margin-top:5px;"><div class="dl" style="color:#111; font-weight:bold;">✨ 지원자 한줄 어필 및 자기소개</div><div class="dv" style="white-space:pre-wrap; font-size:13px; margin-top:4px;">${app.self_intro}</div></div>` : ''}
+          
+          ${photoHtml}
         </div>
         <div class="delete-btn-wrap">
           <button class="btn-delete" onclick="deleteApplicant('${app.id}')">지원서 영구 삭제</button>
